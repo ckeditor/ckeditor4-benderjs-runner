@@ -1,0 +1,249 @@
+const launch = require( 'launchpad' );
+const { copyFile } = require( 'fs' );
+const { normalize } = require( 'path' );
+const { spawn } = require( 'child_process' );
+
+const args = process.argv.slice( 2 );
+const config = require( `./${ args[ 0 ] }` );
+
+( async function() {
+
+	let failedTests = [];
+	let benderProcess, serverProcess;
+
+	// Graceful shutdown.
+	process.on( 'SIGINT', () => {
+		console.log( '\nTerminating...' );
+
+		terminate( 1, benderProcess, serverProcess );
+	} );
+
+	console.log( `\n--- Copying Bender runner...` );
+	await copyRunner( config.paths );
+
+	console.log( '\n--- Launching bender...' );
+
+	benderProcess = await launchBender();
+	if ( !benderProcess ) {
+		terminate( 1 );
+	}
+
+	console.log( '\n--- Launching server...' );
+
+	const testRunLogger = getLogger();
+
+	serverProcess = await launchServer( config, testRunLogger );
+	if ( !serverProcess ) {
+		terminate( 1, benderProcess );
+	}
+
+	const os = getOS();
+	const localInstance = await launchLocal( launch );
+	const browsers = await getBrowsers( localInstance, os, config );
+
+	console.log( `\n--- Testing on ${ os } with browsers:` );
+	console.log( browsers );
+	console.log( '\n--- Launching tests...' );
+
+	const testsQuery = args[ 1 ] ? args[ 1 ] : ''; // For example: 'path:/tests/plugins/image2'.
+	const url = `http://localhost:${ config.bender.port }/runner.html#port:${config.server.port},is:unit,${ testsQuery }`;
+
+	for ( const browser of browsers ) {
+		await runTests( localInstance, browser, url, testRunLogger );
+	}
+
+	terminate( 0, benderProcess, serverProcess );
+
+	async function copyRunner( paths ) {
+		return new Promise( ( res, rej ) => {
+			copyFile( paths.runner, normalize( `${ paths.ckeditor4 }/node_modules/benderjs/static/runner.html` ), error => {
+				if ( error ) {
+					rej( error );
+				} else {
+					res();
+				}
+			} );
+		} );
+	}
+
+	async function launchLocal( launchpad ) {
+		return new Promise( ( res, rej ) => {
+			launchpad.local( ( error, localInstance ) => {
+				if ( error ) {
+					rej( error );
+				} else {
+					res( localInstance );
+				}
+			} );
+		} );
+	}
+
+	async function getBrowsers( launchpadInstance, os, config ) {
+		return new Promise( ( res, rej ) => {
+			launchpadInstance.browsers( ( error, browsers ) => {
+				if ( error ) {
+					rej( error );
+				} else {
+					res( filterBrowsers( browsers, config.browsers[ os ] ) );
+				}
+			} );
+		} );
+	}
+
+	async function runTests( launchpadInstance, browser, url, logger ) {
+		return new Promise( ( res, rej ) => {
+
+			failedTests = [];
+
+			launchpadInstance[ browser.name ]( url, ( error, browserInstance ) => {
+				console.log( '\n--- Launched ', browser.name );
+
+				logger.onDone = function( data ) {
+					console.log( `\nTesting complete: ${ data.result }` );
+					printFailedTests( failedTests );
+					res();
+				};
+			} );
+		} );
+	}
+
+	async function launchBender() {
+		return new Promise( ( res, rej ) => {
+			const bender = spawn( 'npm', [ 'run', 'sub:bender', config.paths.ckeditor4, config.bender.port ], { detached: true } );
+
+			bender.stdout.on( 'data', data => {
+				const msg = data.toString();
+
+				// console.log( `BENDER: ${ msg.trim() }` );
+
+				if ( msg.toLowerCase().includes( 'server started at' ) ) {
+					res( bender );
+				}
+			} );
+
+			bender.stderr.on( 'data', data => {
+				const msg = data.toString();
+
+				console.error( `BENDER.ERROR: ${ msg.trim() }` );
+
+				rej();
+			} );
+
+			bender.on( 'close', code => {
+				console.log( `BENDER: Process exited with code ${ code }.`);
+			} );
+		} );
+	}
+
+	async function launchServer( config, testRunLogger ) {
+		return new Promise( ( res, rej ) => {
+			const server = spawn( 'npm', [ 'run', 'sub:server', config.server.port ], { detached: true } );
+
+			server.stdout.on( 'data', data => {
+				const msg = data.toString();
+
+				// console.log( `SERVER: ${ msg.trim() }` );
+
+				testRunLogger.passMsg( msg.trim() );
+
+				if ( msg.toLowerCase().includes( 'server started at' ) ) {
+					res( server );
+				}
+			} );
+
+			server.stderr.on( 'data', data => {
+				const msg = data.toString();
+
+				console.error( `SERVER.ERROR: ${ msg.trim() }` );
+
+				rej();
+			} );
+
+			server.on( 'close', code => {
+				console.log( `SERVER: Process exited with code ${ code }.`);
+			} );
+		} );
+	}
+} )();
+
+function getOS() {
+	const os = process.platform.toLowerCase();
+
+	if ( os === 'darwin' ) {
+		return 'macos';
+	}
+
+	if ( os === 'win32' || os === 'win64' ) {
+		return 'windows';
+	}
+
+	return 'linux';
+}
+
+function filterBrowsers( availableBrowsers, useBrowsers ) {
+	return availableBrowsers.filter( browser => {
+		return useBrowsers.includes( browser.name );
+	} );
+}
+
+function getLogger() {
+	return {
+		onUpdate: function( data ) {
+			// console.log( 'Not implemented.' );
+			// process.stdout.write("hello: ");
+			process.stdout.write( data.failed === 0 ? '+' : '-' );
+
+			if ( data.failed ) {
+				// console.log( 'TEST FAILED', data );
+				failedTests.push( data );
+			}
+		},
+
+		onDone: function( data ) {
+			console.log( 'Not implemented.' );
+		},
+
+		passMsg: function( msg ) {
+			const parts = msg.split( '\n' );
+
+			parts.forEach( part => {
+				let data = '';
+
+				if ( part[ 0 ] !== '>' ) {
+					try {
+						data = JSON.parse( part.trim() );
+					} catch ( err ) {
+						console.log( 'Error parsing JSON', err, part );
+					}
+
+					if ( data && data.type === 'update' && data.state === 'done' ) {
+						this.onUpdate( data );
+					} else if ( data && data.type === 'complete' ) {
+						this.onDone( data );
+					}
+				}
+			} );
+		}
+	};
+}
+
+function terminate( exitCode, benderProcess, serverProcess ) {
+	benderProcess && process.kill( -benderProcess.pid, 'SIGINT' );
+	serverProcess && process.kill( -serverProcess.pid, 'SIGINT' );
+
+	setTimeout( () => {
+		process.exit( exitCode );
+	}, 500 );
+}
+
+function printFailedTests( failedTestsData ) {
+	failedTestsData.forEach( failedTestData => {
+		console.log( failedTestData.id );
+
+		let count = 1;
+		Object.values( failedTestData.results ).forEach( failedTest => {
+			console.log( `${ count }) ${ failedTest.name } - ${ failedTest.error }` );
+			count++;
+		} );
+	} );
+}
