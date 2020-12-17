@@ -21,7 +21,15 @@ function getBenderAffectedPaths(filesStatus) {
 			!filePath.includes('/manuals/')
 			)
 		{
-			benderPaths.push(filePath);
+			if( filePath.includes( '/_assets' ) ||
+				filePath.includes( '/_helpers' )
+			)
+			{
+				//TODO go with config to ckeditor4 directory and extract all plugins tests
+				benderPaths.push(filePath);
+			} else {
+				benderPaths.push(filePath);
+			}
 		}
 		//plugin is affected ->
 		//core is affected

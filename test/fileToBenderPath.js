@@ -24,6 +24,19 @@ describe('bender paths extractor', function() {
 		)
 	);
 
+	it('include all non-manual plugin tests if helper or asset in plugin tests was modified',
+		MakeMultipleResultsTest(
+			[['M', 'tests/plugins/dialog/_helpers/tools.js']],
+			[
+				'tests/plugins/dialog/beforeunload',
+				'tests/plugins/dialog/confirm',
+				'tests/plugins/dialog/focus',
+				'tests/plugins/dialog/plugin',
+				'tests/plugins/dialog/positioning',
+			]
+		)
+	);
+
 	it('do not includes path for deleted file',
 		MakePathTest(
 			[ [ 'D', 'tests/tickets/174/1.js' ] ],
@@ -43,5 +56,14 @@ function MakePathTest(changedFiles, expectedPath, exists) {
 		const benderPaths = getBenderAffectedPaths(changedFiles);
 		console.log('***' , benderPaths);
 		assert.strictEqual(benderPaths.includes(expectedPath), shouldInclude );
+	};
+}
+
+function MakeMultipleResultsTest(changedFiles, expectedPaths) {
+
+	return function () {
+		const benderPaths = getBenderAffectedPaths(changedFiles);
+		console.log('***' , benderPaths);
+		assert.strictEqual(benderPaths, expectedPaths );
 	};
 }
