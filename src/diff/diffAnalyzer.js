@@ -1,15 +1,13 @@
 function parseGitOutput( gitOutput ) {
 	const filesStatus = gitOutput.split('\n').filter( s => s !== '');
 
-	const maped = filesStatus.map(fileStatus => {
-	   return fileStatus.split('\t');
+	return filesStatus.map(fileStatus => {
+		return fileStatus.split('\t');
 	});
-
-	return maped;
 }
 
-function getBenderAffectedPaths(filesStatus) {
-	console.log(filesStatus);
+function convertFilesIntoTestsPaths(filesStatus, config) {
+	console.log(config);
 	const benderPaths = [];
 
 	filesStatus.forEach(element => {
@@ -33,8 +31,6 @@ function getBenderAffectedPaths(filesStatus) {
 		}
 		//plugin is affected ->
 		//core is affected
-
-		//other non relevant
 	});
 
 	return benderPaths;
@@ -42,5 +38,5 @@ function getBenderAffectedPaths(filesStatus) {
 
 module.exports = {
 	parseGitOutput,
-	getBenderAffectedPaths
+	convertFilesIntoTestsPaths
 };

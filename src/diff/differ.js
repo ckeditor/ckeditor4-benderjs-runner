@@ -1,5 +1,7 @@
 const { spawn } = require("child_process");
-const { parseGitOutput, getBenderAffectedPaths } = require('./diff/analyzeDiff');
+const { parseGitOutput, convertFilesIntoTestsPaths } = require('./diffAnalyzer');
+
+const config = require('../../bender-runner.config.json');
 
 
 const targetBranch = process.argv[2] || 'master';
@@ -9,10 +11,8 @@ console.log(targetBranch, currentBranch);
 const ls = spawn( 'git',['diff', `${targetBranch}..${currentBranch}`,'--name-status']);
 
 ls.stdout.on("data", data => {
-	// console.log(data.toString());
 	const filesStatus = parseGitOutput(data.toString());
-	getBenderAffectedPaths(filesStatus);
-// console.log(`stdout: ${data}`);
+	convertFilesIntoTestsPaths(filesStatus, config);
 });
 
 ls.on('error', (error) => {

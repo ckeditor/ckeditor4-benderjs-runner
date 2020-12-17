@@ -1,5 +1,5 @@
 var assert = require('assert');
-const {getBenderAffectedPaths} = require('../src/diff/analyzeDiff');
+const {getBenderAffectedPaths} = require('../src/diff/diffAnalyzer');
 
 describe('bender paths extractor', function() {
 	it('returns test path for file if ticket test file was added',
