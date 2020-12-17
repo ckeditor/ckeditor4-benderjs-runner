@@ -6,6 +6,8 @@ const { spawn } = require( 'child_process' );
 const args = process.argv.slice( 2 );
 const config = require( `./${ args[ 0 ] }` );
 
+console.log( `Loaded config from ${ args[ 0 ] }` );
+
 ( async function() {
 
 	let failedTests = { list: [] };
@@ -109,6 +111,9 @@ const config = require( `./${ args[ 0 ] }` );
 
 	async function launchBender() {
 		return new Promise( ( res, rej ) => {
+			console.log( 'Trying to launch bedner with:' );
+			console.log( `npm run sub:bender ${ config.paths.ckeditor4 } ${ config.bender.port }` );
+
 			const bender = spawn( 'npm', [ 'run', 'sub:bender', config.paths.ckeditor4, config.bender.port ], { detached: true } );
 
 			bender.stdout.on( 'data', data => {
