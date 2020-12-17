@@ -100,11 +100,16 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 			launchpadInstance[ browser.name ]( url, ( error, browserInstance ) => {
 				console.log( '\n--- Launched ', browser.name );
 
-				logger.onDone = function( data ) {
-					console.log( `\nTesting complete: ${ data.result }` );
-					printFailedTests( failedTests.list );
+				if ( error ) {
+					console.log( error );
 					res();
-				};
+				} else {
+					logger.onDone = function( data ) {
+						console.log( `\nTesting complete: ${ data.result }` );
+						printFailedTests( failedTests.list );
+						res();
+					};
+				}
 			} );
 		} );
 	}
