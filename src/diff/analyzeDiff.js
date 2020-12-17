@@ -11,10 +11,13 @@ function parseGitOutput( gitOutput ) {
 function getBenderAffectedPaths(filesStatus) {
 	console.log(filesStatus);
 	const benderPaths = [];
+
 	filesStatus.forEach(element => {
+		const mode = element[0];
 		const filePath = element[1].slice(0, -3);
 		//test is affected
-		if(filePath.startsWith('tests/') &&
+		if( mode !== 'D' &&
+			filePath.startsWith('tests/') &&
 			!filePath.includes('/manuals/')
 			)
 		{
@@ -25,6 +28,8 @@ function getBenderAffectedPaths(filesStatus) {
 
 		//other non relevant
 	});
+
+	return benderPaths;
 }
 
 module.exports = {
