@@ -8,7 +8,7 @@ const config = require( `./${ args[ 0 ] }` );
 
 ( async function() {
 
-	let failedTests = [];
+	let failedTests = { list: [] };
 	let benderProcess, serverProcess;
 
 	// Graceful shutdown.
@@ -30,7 +30,7 @@ const config = require( `./${ args[ 0 ] }` );
 
 	console.log( '\n--- Launching server...' );
 
-	const testRunLogger = getLogger();
+	const testRunLogger = getLogger( failedTests );
 
 	serverProcess = await launchServer( config, testRunLogger );
 	if ( !serverProcess ) {
@@ -93,14 +93,14 @@ const config = require( `./${ args[ 0 ] }` );
 	async function runTests( launchpadInstance, browser, url, logger ) {
 		return new Promise( ( res, rej ) => {
 
-			failedTests = [];
+			failedTests.list = [];
 
 			launchpadInstance[ browser.name ]( url, ( error, browserInstance ) => {
 				console.log( '\n--- Launched ', browser.name );
 
 				logger.onDone = function( data ) {
 					console.log( `\nTesting complete: ${ data.result }` );
-					printFailedTests( failedTests );
+					printFailedTests( failedTests.list );
 					res();
 				};
 			} );
@@ -186,7 +186,7 @@ function filterBrowsers( availableBrowsers, useBrowsers ) {
 	} );
 }
 
-function getLogger() {
+function getLogger( failedTests ) {
 	return {
 		onUpdate: function( data ) {
 			// console.log( 'Not implemented.' );
@@ -195,7 +195,7 @@ function getLogger() {
 
 			if ( data.failed ) {
 				// console.log( 'TEST FAILED', data );
-				failedTests.push( data );
+				failedTests.list.push( data );
 			}
 		},
 
