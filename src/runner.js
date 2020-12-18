@@ -11,7 +11,7 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 ( async function() {
 
 	let failedTests = { list: [] };
-	let benderProcess, serverProcess;
+	let benderProcess, serverProcess, allTestsPassing = true;
 
 	// Graceful shutdown.
 	process.on( 'SIGINT', () => {
@@ -54,7 +54,7 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 		await runTests( localInstance, browser, url, testRunLogger );
 	}
 
-	terminate( 0, benderProcess, serverProcess );
+	terminate( allTestsPassing ? 0 : 1, benderProcess, serverProcess );
 
 	async function copyRunner( paths ) {
 		return new Promise( ( res, rej ) => {
@@ -106,6 +106,7 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 				} else {
 					logger.onDone = function( data ) {
 						console.log( `\nTesting complete: ${ data.result }` );
+						allTestsPassing = allTestsPassing && failedTests.list.length === 0;
 						printFailedTests( failedTests.list );
 						res();
 					};
