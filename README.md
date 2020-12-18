@@ -100,6 +100,16 @@ npm run test '../bender-runner.config.json' 'path:/tests/plugins/image2'
 
 This will run `image2` unit tests in all browser defined in config file available in your OS.
 
+---
+
+Additionally, 3rd parameter can be passed specifying single browser only on which to run tests, for example:
+
+```bash
+npm run test '../bender-runner.config.json' 'path:/tests/plugins/image2' 'chrome'
+```
+
+With such call, even though more browsers may be available on host OS and config may have multiple names listed, tests will be run only on this single browser.
+
 ## What's next?
 
 1. Script for checking changes based on git diff and running only affected tests.
