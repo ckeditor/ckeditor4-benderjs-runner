@@ -1,5 +1,5 @@
 var assert = require('assert');
-const {getBenderAffectedPaths} = require('../src/diff/diffAnalyzer');
+const { convertFilesIntoTestsPaths } = require('../src/diff/diffAnalyzer');
 
 describe('bender paths extractor', function() {
 	it('returns test path for file if ticket test file was added',
@@ -47,23 +47,26 @@ describe('bender paths extractor', function() {
 
 });
 
+const config = require('../bender-runner.config.json');
 
 
 function MakePathTest(changedFiles, expectedPath, exists) {
 	const shouldInclude = exists === undefined ? true : exists;
 
 	return function () {
-		const benderPaths = getBenderAffectedPaths(changedFiles);
-		console.log('***' , benderPaths);
-		assert.strictEqual(benderPaths.includes(expectedPath), shouldInclude );
+		const benderPaths = convertFilesIntoTestsPaths(changedFiles, config);
+		if(shouldInclude) {
+			assert.strictEqual(benderPaths[0], expectedPath );
+		} else {
+			assert.notStrictEqual(benderPaths[0], expectedPath );
+		}
 	};
 }
 
 function MakeMultipleResultsTest(changedFiles, expectedPaths) {
 
 	return function () {
-		const benderPaths = getBenderAffectedPaths(changedFiles);
-		console.log('***' , benderPaths);
-		assert.strictEqual(benderPaths, expectedPaths );
+		const benderPaths = convertFilesIntoTestsPaths(changedFiles, config);
+		assert.deepStrictEqual(benderPaths, expectedPaths );
 	};
 }

@@ -5,26 +5,48 @@ function parseGitOutput( gitOutput ) {
 		return fileStatus.split('\t');
 	});
 }
+const path = require('path');
+const fs = require('fs');
 
 function convertFilesIntoTestsPaths(filesStatus, config) {
-	console.log(config);
 	const benderPaths = [];
 
 	filesStatus.forEach(element => {
 		const mode = element[0];
-		const filePath = element[1].slice(0, -3);
+
+		const filePath = path.join( 
+			path.dirname(element[ 1 ]),
+			path.basename(
+				element[ 1 ],
+				path.extname( element[ 1 ] )
+			)
+		);
 		//test is affected
 		if( mode !== 'D' &&
 			filePath.startsWith('tests/') &&
-			!filePath.includes('/manuals/')
+			!filePath.includes('/manual/')
 			)
 		{
 			if( filePath.includes( '/_assets' ) ||
 				filePath.includes( '/_helpers' )
 			)
 			{
-				//TODO go with config to ckeditor4 directory and extract all plugins tests
-				benderPaths.push(filePath);
+				const pathRegExp = /(.*)(_assets|_helpers)(.*)/m;
+				const pathParts = filePath.match(pathRegExp);
+
+				if (pathParts){
+
+					const testFolder = path.normalize( path.join(__dirname, '../../', config.paths.ckeditor4, pathParts[1] ) );
+					
+					fs.readdirSync(testFolder, { withFileTypes: true } )
+					.forEach(fDescriptor => {
+						if(fDescriptor.isFile()){
+							const baseName = path.basename(fDescriptor.name, path.extname(fDescriptor.name));
+							const testPath = path.join( pathParts[1], baseName );
+							benderPaths.push(testPath);
+						}
+					});
+				}
 			} else {
 				benderPaths.push(filePath);
 			}
@@ -32,7 +54,7 @@ function convertFilesIntoTestsPaths(filesStatus, config) {
 		//plugin is affected ->
 		//core is affected
 	});
-
+	
 	return benderPaths;
 }
 
