@@ -54,7 +54,7 @@
 				iframe.src = url;
 
 				var intervalId = setInterval( function() {
-					if ( iframe.contentWindow.document && iframe.contentWindow.document.querySelector( '.run-button' ) ) { // ready
+					if ( iframe && iframe.contentWindow && iframe.contentWindow.document && iframe.contentWindow.document.querySelector( '.run-button' ) ) { // ready
 						benderInstance = iframe.contentWindow.bender;
 						iframeDocument = iframe.contentWindow.document;
 
