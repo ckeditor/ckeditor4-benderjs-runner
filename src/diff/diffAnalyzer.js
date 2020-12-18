@@ -26,28 +26,29 @@ function convertFilesIntoTestsPaths( filesStatus, config ) {
 				path.extname( element[ 1 ] )
 			)
 		);
-		//test is affected
-		if( mode !== 'D' &&
-			filePath.startsWith('tests/') &&
-			!filePath.includes('/manual/')
-			)
-		{
-			if( filePath.includes( '/_assets' ) ||
-				filePath.includes( '/_helpers' )
-			)
-			{
-				const pathRegExp = /(.*)(_assets|_helpers)(.*)/m;
-				const pathParts = filePath.match(pathRegExp);
 
-				if (pathParts){
-					benderPaths.push(pathParts[ 1 ].slice( 0, -1 ) );
-				}
-			} else {
+		if(filePath.startsWith( 'tests/' ) )
+		{
+			if( filePath.includes( '/manual/' ) ) {
+				return;
+			}
+
+			const pathRegExp = /(.*)(_assets|_helpers)(.*)/m;
+			const pathParts = filePath.match(pathRegExp);
+
+			if( pathParts ) {
+				// Add path to full test scope where additional assets was modified
+				benderPaths.push(pathParts[ 1 ].slice( 0, -1 ) );
+			} else if ( mode !== 'D' ) {
+				// Add test for non deleted tests files
 				benderPaths.push( path.dirname( filePath ) );
 			}
+
+		} else if ( filePath.startsWith( 'core/' ) ) {
+			
+		} else if ( filePath.startsWith( 'plugins/' ) ) {
+
 		}
-		//plugin is affected ->
-		//core is affected
 	});
 
 	return benderPaths;
