@@ -5,14 +5,14 @@ describe('bender paths extractor', function() {
 	it('returns test path for file if ticket test file was added',
 		MakePathTest(
 			[ [ 'A', 'tests/tickets/174/1.js' ] ],
-			'tests/tickets/174/1'
+			'tests/tickets/174'
 		)
 	);
 
 	it('returns test path for plugin if plugin tests file was modified',
 		MakePathTest(
 			[ [ 'M', 'tests/plugins/ajax/ajax.js' ] ],
-			'tests/plugins/ajax/ajax'
+			'tests/plugins/ajax'
 		)
 	);
 
@@ -25,22 +25,16 @@ describe('bender paths extractor', function() {
 	);
 
 	it('include all non-manual plugin tests if helper or asset in plugin tests was modified',
-		MakeMultipleResultsTest(
+		MakePathTest(
 			[['M', 'tests/plugins/dialog/_helpers/tools.js']],
-			[
-				'tests/plugins/dialog/beforeunload',
-				'tests/plugins/dialog/confirm',
-				'tests/plugins/dialog/focus',
-				'tests/plugins/dialog/plugin',
-				'tests/plugins/dialog/positioning',
-			]
+			'tests/plugins/dialog'
 		)
 	);
 
 	it('do not includes path for deleted file',
 		MakePathTest(
 			[ [ 'D', 'tests/tickets/174/1.js' ] ],
-			'tests/tickets/174/1',
+			'tests/tickets/174',
 			false
 		)
 	);

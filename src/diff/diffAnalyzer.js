@@ -5,11 +5,16 @@ function parseGitOutput( gitOutput ) {
 		return fileStatus.split('\t');
 	});
 }
-const path = require('path');
-const fs = require('fs');
+const path = require( 'path' );
+const fs = require( 'fs' );
 
-function convertFilesIntoTestsPaths(filesStatus, config) {
-	const benderPaths = [];
+function convertTestPathIntoBenderPathFilter( testPaths ) {
+	const prefixedPaths = testPaths.map( path => 'path:/' + path );
+	return prefixedPaths;
+}
+
+function convertFilesIntoTestsPaths( filesStatus, config ) {
+	let benderPaths = [];
 
 	filesStatus.forEach(element => {
 		const mode = element[0];
@@ -35,30 +40,21 @@ function convertFilesIntoTestsPaths(filesStatus, config) {
 				const pathParts = filePath.match(pathRegExp);
 
 				if (pathParts){
-
-					const testFolder = path.normalize( path.join(__dirname, '../../', config.paths.ckeditor4, pathParts[1] ) );
-					
-					fs.readdirSync(testFolder, { withFileTypes: true } )
-					.forEach(fDescriptor => {
-						if(fDescriptor.isFile()){
-							const baseName = path.basename(fDescriptor.name, path.extname(fDescriptor.name));
-							const testPath = path.join( pathParts[1], baseName );
-							benderPaths.push(testPath);
-						}
-					});
+					benderPaths.push(pathParts[ 1 ].slice( 0, -1 ) );
 				}
 			} else {
-				benderPaths.push(filePath);
+				benderPaths.push( path.dirname( filePath ) );
 			}
 		}
 		//plugin is affected ->
 		//core is affected
 	});
-	
+
 	return benderPaths;
 }
 
 module.exports = {
 	parseGitOutput,
-	convertFilesIntoTestsPaths
+	convertFilesIntoTestsPaths,
+	convertTestPathIntoBenderPathFilter
 };
