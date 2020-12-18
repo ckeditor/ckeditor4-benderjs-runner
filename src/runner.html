@@ -38,90 +38,92 @@
 		<iframe id="bender-frame" title="bender" src=""></iframe>
 
 		<script>
-			var params = window.location.hash.substr( 1 );
-			var reportPort = params.split( ',' )[ 0 ].replace( 'port:', '' );
-			var testsPath = '#tests/' + params.replace( 'port:' + reportPort + ',', '' );
-			var url = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/' + testsPath;
-			var iframe = document.querySelector( '#bender-frame' );
-			var statusBar = document.querySelector( '.info' );
-			var benderInstance = null;
-			var reportURL = 'http://localhost:' + reportPort;
-			var started = false;
+			setTimeout( function() {
+				var params = window.location.hash.substr( 1 );
+				var reportPort = params.split( ',' )[ 0 ].replace( 'port:', '' );
+				var testsPath = '#tests/' + params.replace( 'port:' + reportPort + ',', '' );
+				var url = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/' + testsPath;
+				var iframe = document.querySelector( '#bender-frame' );
+				var statusBar = document.querySelector( '.info' );
+				var benderInstance = null;
+				var reportURL = 'http://localhost:' + reportPort;
+				var started = false;
 
-			console.log( reportURL );
+				console.log( reportURL );
 
-			iframe.src = url;
-
-			var intervalId = setInterval( function() {
-				if ( iframe.contentWindow.document && iframe.contentWindow.document.querySelector( '.run-button' ) ) { // ready
-					benderInstance = iframe.contentWindow.bender;
-					iframeDocument = iframe.contentWindow.document;
-
-					clearInterval( intervalId );
-					updateStatus( iframeDocument, benderInstance, statusBar );
-					setupBender( benderInstance, iframeDocument );
-
-					runTests( iframeDocument, benderInstance );
-				}
-			}, 25 );
-
-			function updateStatus( iframeDocument, benderInstance, statusEl ) {
-				setInterval( function() {
-					statusEl.innerHTML = 'Tests ' + ( areTestsRunning( benderInstance ) ? 'running' : 'stopped' ) + ' - ' + getTestsStatus( iframeDocument );
-				}, 1000 );
-			}
-
-			function setupBender( benderInstance, iframeDocument ) {
-				// Before/After each TS.
-				benderInstance.on( 'update', function( evt ) {
-					var data = evt || {};
-					data.type = 'update';
-
-					// console.log( data );
-
-					sendUpdate( data );
-				} );
-
-				// After run is finished.
-				benderInstance.on( 'complete', function( evt ) {
-					var data = evt || {};
-					data.type = 'complete';
-					data.result = getTestsStatus( iframeDocument );
-
-					sendUpdate( data ); // Sent overall data: "xx passed / xx failed in time"
-				} );
-			}
-
-			function runTests( iframeDocument, benderInstance ) {
-				var startButton = iframeDocument.querySelector( '.run-button' );
+				iframe.src = url;
 
 				var intervalId = setInterval( function() {
-					if ( !areTestsRunning( benderInstance ) && started !== true ) {
-						started = true;
-						startButton.click();
-					} else {
+					if ( iframe.contentWindow.document && iframe.contentWindow.document.querySelector( '.run-button' ) ) { // ready
+						benderInstance = iframe.contentWindow.bender;
+						iframeDocument = iframe.contentWindow.document;
+
 						clearInterval( intervalId );
+						updateStatus( iframeDocument, benderInstance, statusBar );
+						setupBender( benderInstance, iframeDocument );
+
+						runTests( iframeDocument, benderInstance );
 					}
-				}, 1000 );
-			}
+				}, 100 );
 
-			function areTestsRunning( benderInstance ) {
-				return benderInstance.current !== null;
-			}
+				function updateStatus( iframeDocument, benderInstance, statusEl ) {
+					setInterval( function() {
+						statusEl.innerHTML = 'Tests ' + ( areTestsRunning( benderInstance ) ? 'running' : 'stopped' ) + ' - ' + getTestsStatus( iframeDocument );
+					}, 1000 );
+				}
 
-			function getTestsStatus( iframeDocument ) {
-				return iframeDocument.querySelector( '.test-status' ).innerText
-			}
+				function setupBender( benderInstance, iframeDocument ) {
+					// Before/After each TS.
+					benderInstance.on( 'update', function( evt ) {
+						var data = evt || {};
+						data.type = 'update';
 
-			function sendUpdate( data ) {
-				fetch( reportURL, {
-					method: 'POST',
-					mode: 'no-cors',
-					cache: 'no-cache',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify( data )
-				} );
-			}
+						// console.log( data );
+
+						sendUpdate( data );
+					} );
+
+					// After run is finished.
+					benderInstance.on( 'complete', function( evt ) {
+						var data = evt || {};
+						data.type = 'complete';
+						data.result = getTestsStatus( iframeDocument );
+
+						sendUpdate( data ); // Sent overall data: "xx passed / xx failed in time"
+					} );
+				}
+
+				function runTests( iframeDocument, benderInstance ) {
+					var startButton = iframeDocument.querySelector( '.run-button' );
+
+					var intervalId = setInterval( function() {
+						if ( !areTestsRunning( benderInstance ) && started !== true ) {
+							started = true;
+							startButton.click();
+						} else {
+							clearInterval( intervalId );
+						}
+					}, 1000 );
+				}
+
+				function areTestsRunning( benderInstance ) {
+					return benderInstance.current !== null;
+				}
+
+				function getTestsStatus( iframeDocument ) {
+					return iframeDocument.querySelector( '.test-status' ).innerText
+				}
+
+				function sendUpdate( data ) {
+					fetch( reportURL, {
+						method: 'POST',
+						mode: 'no-cors',
+						cache: 'no-cache',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify( data )
+					} );
+				}
+			}, 5000 );
 		</script>
 	</body>
 
