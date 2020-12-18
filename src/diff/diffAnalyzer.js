@@ -12,7 +12,7 @@ function testPathToBenderFilter( testPath ) {
 }
 
 function convertFilesStatusIntoBenderFilter( filesStatus ) {
-	let benderPaths = [];
+	let benderPaths = new Set();
 
 	filesStatus.forEach(element => {
 		const mode = element[0];
@@ -36,29 +36,29 @@ function convertFilesStatusIntoBenderFilter( filesStatus ) {
 
 			if( pathParts ) {
 				// Add path to full test scope where additional assets was modified
-				benderPaths.push(
+				benderPaths.add(
 					testPathToBenderFilter( pathParts[ 1 ].slice( 0, -1 ) )
 				);
 			} else if ( mode !== 'D' ) {
 				// Add test for non deleted tests files
-				benderPaths.push(
+				benderPaths.add(
 					testPathToBenderFilter( path.dirname( filePath ) )
 				);
 			}
 		} else if ( filePath.startsWith( 'core/' ) ) {
-			benderPaths.push( 'group:Core' );
+			benderPaths.add( 'group:Core' );
 		} else if ( filePath.startsWith( 'plugins/' ) ) {
 			const pluginRegExp = /(plugins\/[a-z0-9_-]+)/g;
 			const match = filePath.match(pluginRegExp);
 			
-			benderPaths.push(
+			benderPaths.add(
 				testPathToBenderFilter( path.join( 'tests', match[ 0 ] ) )
 			);
 
 		}
 	});
 
-	return benderPaths;
+	return Array.from(benderPaths);
 }
 
 module.exports = {

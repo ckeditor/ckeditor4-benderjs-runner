@@ -53,6 +53,16 @@ describe('bender paths extractor', function() {
 		)
 	);
 
+	it( 'do not include duplicates', 
+		MakeMultipleResultsTest(
+			[
+				[ 'M', 'plugins/ajax/plugin.js' ],
+				[ 'A', 'plugins/ajax/samples/image.png']
+			],
+			['path:/tests/plugins/ajax']
+		)
+	);
+
 });
 
 function MakePathTest(changedFiles, expectedPath, exists) {
