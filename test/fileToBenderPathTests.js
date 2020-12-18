@@ -46,12 +46,20 @@ describe('bender paths extractor', function() {
 		)
 	);
 
+	it('include all adapters tests for changes in adapters',
+		MakePathTest(
+			[ [ 'M', 'adapters/jquery.js' ] ],
+			'group:Adapters'
+		)
+	);
+
 	it( 'include all test for plugin if plugin code changed',
 		MakePathTest(
 			[ [ 'M', 'plugins/ajax/plugin.js' ] ],
 			'path:/tests/plugins/ajax'
 		)
 	);
+
 
 	it( 'do not include duplicates',
 		MakeMultipleResultsTest(

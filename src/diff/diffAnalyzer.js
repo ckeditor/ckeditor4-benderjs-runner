@@ -53,6 +53,12 @@ function convertFilesStatusIntoBenderFilter( filesStatus ) {
 			return 'group:Core'; 
 		});
 
+	const adaptersChanges = filesStatus
+		.filter( elem => elem[1].startsWith( 'adapters/' ) )
+		.map(elem => {
+			return 'group:Adapters'; 
+		});
+
 	const pluginChanges = filesStatus
 		.filter( elem => elem[1].startsWith( 'plugins/' ) )
 		.map(elem => {
@@ -64,7 +70,7 @@ function convertFilesStatusIntoBenderFilter( filesStatus ) {
 			return testPathToBenderFilter( path.join( 'tests', match[ 0 ] ) )
 		});
 
-	const benderFilters = [...testChanges, ...coreChanges, ...pluginChanges ];
+	const benderFilters = [...testChanges, ...coreChanges, ...pluginChanges, ...adaptersChanges ];
 
 	return Array.from( new Set( benderFilters ) );
 }
