@@ -67,7 +67,7 @@ function convertFilesStatusIntoBenderFilter( filesStatus ) {
 			const pluginRegExp = /(plugins\/[a-z0-9_-]+)/g;
 			const match = filePath.match(pluginRegExp);
 			
-			return testPathToBenderFilter( path.join( 'tests', match[ 0 ] ) )
+			return testPathToBenderFilter( path.join( 'tests', match[ 0 ] ) );
 		});
 
 	const benderFilters = [...testChanges, ...coreChanges, ...pluginChanges, ...adaptersChanges ];
