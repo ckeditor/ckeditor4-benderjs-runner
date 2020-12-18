@@ -130,7 +130,7 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 			console.log( 'Trying to launch bedner with:' );
 			console.log( `npm run sub:bender ${ config.paths.ckeditor4 } ${ config.bender.port }` );
 
-			const bender = spawn( 'npm', [ 'run', 'sub:bender', config.paths.ckeditor4, config.bender.port ], { detached: true } );
+			const bender = spawnNPMProcess( [ 'run', 'sub:bender', config.paths.ckeditor4, config.bender.port ] );
 
 			bender.stdout.on( 'data', data => {
 				const msg = data.toString();
@@ -158,7 +158,7 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 
 	async function launchServer( config, testRunLogger ) {
 		return new Promise( ( res, rej ) => {
-			const server = spawn( 'npm', [ 'run', 'sub:server', config.server.port ], { detached: true } );
+			const server = spawnNPMProcess( [ 'run', 'sub:server', config.server.port ] );
 
 			server.stdout.on( 'data', data => {
 				const msg = data.toString();
@@ -267,4 +267,9 @@ function printFailedTests( failedTestsData ) {
 			count++;
 		} );
 	} );
+}
+
+function spawnNPMProcess( params ) {
+	// https://stackoverflow.com/a/43285131/646871
+	return spawn( /^win/.test( process.platform ) ? 'npm.cmd' : 'npm', params, { detached: true } );
 }
