@@ -109,6 +109,11 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 					console.log( error );
 					res();
 				} else {
+					browserInstance.on( 'stop', data => {
+						console.log( 'Browser instance emitted stop event with data:' );
+						console.log( data );
+					} );
+
 					logger.onDone = function( data ) {
 						console.log( `\nTesting complete: ${ data.result }` );
 						allTestsPassing = allTestsPassing && failedTests.list.length === 0;
