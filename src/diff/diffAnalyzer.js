@@ -25,12 +25,12 @@ function convertFilesStatusIntoBenderFilter( filesStatus ) {
 		];
 	} );
 
-	const benderFilters = filesStatus.map( element => {
-		const mode = element[ 0 ];
-		const filePath = element[ 1 ];
+	const testChanges = filesStatus
+		.filter( elem => elem[1].startsWith( 'tests/' ) )
+		.map( elem => {
+			const mode = elem[ 0 ];
+			const filePath = elem[ 1 ];
 
-		if(filePath.startsWith( 'tests/' ) )
-		{
 			if( filePath.includes( '/manual/' ) ) {
 				return;
 			}
@@ -45,16 +45,27 @@ function convertFilesStatusIntoBenderFilter( filesStatus ) {
 				// Add test for non deleted tests files
 				return testPathToBenderFilter( path.dirname( filePath ) );
 			}
-		} else if ( filePath.startsWith( 'core/' ) ) {
-			return 'group:Core';
-		} else if ( filePath.startsWith( 'plugins/' ) ) {
+		});
+
+	const coreChanges = filesStatus
+		.filter( elem => elem[1].startsWith( 'core/' ) )
+		.map(elem => {
+			return 'group:Core'; 
+		});
+
+	const pluginChanges = filesStatus
+		.filter( elem => elem[1].startsWith( 'plugins/' ) )
+		.map(elem => {
+			const filePath = elem[ 1 ];
+
 			const pluginRegExp = /(plugins\/[a-z0-9_-]+)/g;
 			const match = filePath.match(pluginRegExp);
 			
 			return testPathToBenderFilter( path.join( 'tests', match[ 0 ] ) )
-		}
-	});
-	
+		});
+
+	const benderFilters = [...testChanges, ...coreChanges, ...pluginChanges ];
+
 	return Array.from( new Set( benderFilters ) );
 }
 
