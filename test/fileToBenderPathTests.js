@@ -53,19 +53,30 @@ describe('bender paths extractor', function() {
 		)
 	);
 
-	it( 'do not include duplicates', 
+	it( 'do not include duplicates',
 		MakeMultipleResultsTest(
 			[
 				[ 'M', 'plugins/ajax/plugin.js' ],
-				[ 'A', 'plugins/ajax/samples/image.png']
+				[ 'A', 'plugins/ajax/samples/image.png' ]
 			],
-			['path:/tests/plugins/ajax']
+			[ 'path:/tests/plugins/ajax' ]
 		)
 	);
 
+	it( 'has no empty entries', function() {
+		const files = [
+			[ 'M', 'plugins/ajax/plugin.js' ],
+			[ 'A', 'plugins/ajax/samples/image.png' ]
+		];
+
+		const filters = convertFilesStatusIntoBenderFilter( files );
+		
+		assert(!filters.includes(''));
+	} );
+
 });
 
-function MakePathTest(changedFiles, expectedPath, exists) {
+function MakePathTest( changedFiles, expectedPath, exists ) {
 	const shouldInclude = exists === undefined ? true : exists;
 
 	return function () {
@@ -78,8 +89,7 @@ function MakePathTest(changedFiles, expectedPath, exists) {
 	};
 }
 
-function MakeMultipleResultsTest(changedFiles, expectedPaths) {
-
+function MakeMultipleResultsTest( changedFiles, expectedPaths ) {
 	return function () {
 		const benderPaths = convertFilesStatusIntoBenderFilter( changedFiles );
 		assert.deepStrictEqual(benderPaths, expectedPaths );
