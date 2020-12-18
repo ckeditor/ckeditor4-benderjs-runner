@@ -6,14 +6,12 @@ function parseGitOutput( gitOutput ) {
 	});
 }
 const path = require( 'path' );
-const fs = require( 'fs' );
 
-function convertTestPathIntoBenderPathFilter( testPaths ) {
-	const prefixedPaths = testPaths.map( path => 'path:/' + path );
-	return prefixedPaths;
+function testPathToBenderFilter( testPath ) {
+	return 'path:/' + testPath;
 }
 
-function convertFilesIntoTestsPaths( filesStatus, config ) {
+function convertFilesStatusIntoBenderFilter( filesStatus ) {
 	let benderPaths = [];
 
 	filesStatus.forEach(element => {
@@ -38,15 +36,24 @@ function convertFilesIntoTestsPaths( filesStatus, config ) {
 
 			if( pathParts ) {
 				// Add path to full test scope where additional assets was modified
-				benderPaths.push(pathParts[ 1 ].slice( 0, -1 ) );
+				benderPaths.push(
+					testPathToBenderFilter( pathParts[ 1 ].slice( 0, -1 ) )
+				);
 			} else if ( mode !== 'D' ) {
 				// Add test for non deleted tests files
-				benderPaths.push( path.dirname( filePath ) );
+				benderPaths.push(
+					testPathToBenderFilter( path.dirname( filePath ) )
+				);
 			}
-
 		} else if ( filePath.startsWith( 'core/' ) ) {
-			
+			benderPaths.push( 'group:Core' );
 		} else if ( filePath.startsWith( 'plugins/' ) ) {
+			const pluginRegExp = /(plugins\/[a-z0-9_-]+)/g;
+			const match = filePath.match(pluginRegExp);
+			
+			benderPaths.push(
+				testPathToBenderFilter( path.join( 'tests', match[ 0 ] ) )
+			);
 
 		}
 	});
@@ -56,6 +63,5 @@ function convertFilesIntoTestsPaths( filesStatus, config ) {
 
 module.exports = {
 	parseGitOutput,
-	convertFilesIntoTestsPaths,
-	convertTestPathIntoBenderPathFilter
+	convertFilesStatusIntoBenderFilter
 };

@@ -1,8 +1,5 @@
 const { spawn } = require("child_process");
-const { parseGitOutput, convertFilesIntoTestsPaths, convertTestPathIntoBenderPathFilter } = require('./diffAnalyzer');
-
-const config = require('../../bender-runner.config.json');
-
+const { parseGitOutput, convertFilesStatusIntoBenderFilter } = require('./diffAnalyzer');
 
 const targetBranch = process.argv[2] || 'master';
 const currentBranch = process.argv[3] || '';
@@ -11,10 +8,9 @@ const ls = spawn( 'git',['diff', `${targetBranch}..${currentBranch}`,'--name-sta
 
 ls.stdout.on("data", data => {
 	const filesStatus = parseGitOutput(data.toString());
-	const testPaths = convertFilesIntoTestsPaths(filesStatus, config);
-	const benderTestPaths = convertTestPathIntoBenderPathFilter(testPaths);
+	const benderFilters = convertFilesStatusIntoBenderFilter(filesStatus);
 
-	const benderFilter = benderTestPaths.join(',');
+	const benderFilter = benderFilters.join(',');
 
 	console.log(benderFilter);
 });
