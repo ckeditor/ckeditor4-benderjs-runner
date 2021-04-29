@@ -1,3 +1,6 @@
+const path = require( 'path' );
+const { getDependencyMap } = require('./plugins');
+
 function parseGitOutput( gitOutput ) {
 	const filesStatus = gitOutput.split('\n').filter( s => s !== '');
 
@@ -5,17 +8,16 @@ function parseGitOutput( gitOutput ) {
 		return fileStatus.split('\t');
 	});
 }
-const path = require( 'path' );
 
 function testPathToBenderFilter( testPath ) {
 	return 'path:/' + testPath;
 }
 
-function convertFilesStatusIntoBenderFilter( filesStatus ) {
+function convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap = null ) {
 	filesStatus = filesStatus.map( element => {
 		return [
 			element[ 0 ],
-			path.join( 
+			path.join(
 				path.dirname(element[ 1 ]),
 				path.basename(
 					element[ 1 ],
@@ -24,6 +26,9 @@ function convertFilesStatusIntoBenderFilter( filesStatus ) {
 			)
 		];
 	} );
+
+	// TODO Temporary path for tests. I guess it should be configurable.
+	const pluginDependencies = dependencyMap || getDependencyMap( '../ckeditor4/plugins/' );
 
 	const testChanges = filesStatus
 		.filter( elem => elem[1].startsWith( 'tests/' ) )
@@ -50,24 +55,34 @@ function convertFilesStatusIntoBenderFilter( filesStatus ) {
 	const coreChanges = filesStatus
 		.filter( elem => elem[1].startsWith( 'core/' ) )
 		.map(elem => {
-			return 'group:Core'; 
+			return 'group:Core';
 		});
 
 	const adaptersChanges = filesStatus
 		.filter( elem => elem[1].startsWith( 'adapters/' ) )
 		.map(elem => {
-			return 'group:Adapters'; 
+			return 'group:Adapters';
 		});
 
 	const pluginChanges = filesStatus
 		.filter( elem => elem[1].startsWith( 'plugins/' ) )
 		.map(elem => {
+			const paths = [];
 			const filePath = elem[ 1 ];
 
-			const pluginRegExp = /(plugins\/[a-z0-9_-]+)/g;
+			const pluginRegExp = /(plugins\/([a-z0-9_-]+))/i;
 			const match = filePath.match(pluginRegExp);
-			
-			return testPathToBenderFilter( path.join( 'tests', match[ 0 ] ) );
+
+			paths.push(testPathToBenderFilter( path.join( 'tests', match[ 0 ] ) ) );
+
+			const pluginName = match[ 2 ];
+			if ( pluginDependencies[ pluginName ] && pluginDependencies[ pluginName ].length ) {
+				pluginDependencies[ pluginName ].forEach( pluginName => {
+					paths.push( testPathToBenderFilter( path.join( 'tests', 'plugins', pluginName ) ) );
+				} );
+			}
+
+			return paths;
 		});
 
 	const benderFilters = [...testChanges, ...coreChanges, ...pluginChanges, ...adaptersChanges ];

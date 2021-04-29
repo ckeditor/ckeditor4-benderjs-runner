@@ -1,7 +1,10 @@
-var assert = require('assert');
-const { convertFilesStatusIntoBenderFilter } = require('../src/diff/diffAnalyzer');
+const assert = require( 'assert' );
+const { convertFilesStatusIntoBenderFilter } = require( '../src/diff/diffAnalyzer' );
+
+const dependencyMapMock = { ajax: [ 'cloudservices', 'emoji' ] };
 
 describe('bender paths extractor', function() {
+
 	it('returns test path for file if ticket test file was added',
 		MakePathTest(
 			[ [ 'A', 'tests/tickets/174/1.js' ] ],
@@ -77,8 +80,8 @@ describe('bender paths extractor', function() {
 			[ 'A', 'plugins/ajax/samples/image.png' ]
 		];
 
-		const filters = convertFilesStatusIntoBenderFilter( files );
-		
+		const filters = convertFilesStatusIntoBenderFilter( files, dependencyMapMock );
+
 		assert(!filters.includes(''));
 	} );
 
@@ -88,7 +91,7 @@ function MakePathTest( changedFiles, expectedPath, exists ) {
 	const shouldInclude = exists === undefined ? true : exists;
 
 	return function () {
-		const benderPaths = convertFilesStatusIntoBenderFilter( changedFiles );
+		const benderPaths = convertFilesStatusIntoBenderFilter( changedFiles, dependencyMapMock );
 		if(shouldInclude) {
 			assert.strictEqual(benderPaths[0], expectedPath );
 		} else {
@@ -99,7 +102,7 @@ function MakePathTest( changedFiles, expectedPath, exists ) {
 
 function MakeMultipleResultsTest( changedFiles, expectedPaths ) {
 	return function () {
-		const benderPaths = convertFilesStatusIntoBenderFilter( changedFiles );
+		const benderPaths = convertFilesStatusIntoBenderFilter( changedFiles, dependencyMapMock );
 		assert.deepStrictEqual(benderPaths, expectedPaths );
 	};
 }
