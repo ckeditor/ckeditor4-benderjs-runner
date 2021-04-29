@@ -52,6 +52,7 @@ function convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap = null )
 			}
 		});
 
+	// TODO if there are any core changes lets run tests for `dialog`, `widget` and `clipboard` plugins (with all the dependencies) too.
 	const coreChanges = filesStatus
 		.filter( elem => elem[1].startsWith( 'core/' ) )
 		.map(elem => {
