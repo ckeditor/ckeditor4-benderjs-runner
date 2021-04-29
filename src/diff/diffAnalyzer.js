@@ -1,5 +1,5 @@
 const path = require( 'path' );
-const { getDependencyMap } = require('./plugins');
+const { getDependencyMap } = require( './plugins' );
 
 function parseGitOutput( gitOutput ) {
 	const filesStatus = gitOutput.split('\n').filter( s => s !== '');
