@@ -59,7 +59,11 @@ describe('bender paths extractor', function() {
 	it( 'include all test for plugin if plugin code changed',
 		assertPaths(
 			[ [ 'M', 'plugins/ajax/plugin.js' ] ],
-			'path:/tests/plugins/ajax'
+			[ 
+				'path:/tests/plugins/ajax',
+				'path:/tests/plugins/cloudservices',
+				'path:/tests/plugins/emoji'
+			]
 		)
 	);
 
