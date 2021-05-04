@@ -14,34 +14,46 @@ function testPathToBenderFilter( testPath ) {
 }
 
 function convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap = null ) {
-	filesStatus = filesStatus.map( element => {
+	filesStatus = removeExtensionFromPaths( filesStatus );
+
+	const testChanges = collectChangesInTests( filesStatus );
+
+	// TODO if there are any core changes lets run tests for `dialog`, `widget` and `clipboard` plugins (with all the dependencies) too.
+	const coreChanges = collectChangesInCore( filesStatus );
+
+	const adaptersChanges = collectChangesInAdapters ( filesStatus );
+
+	const pluginChanges = collectChangesInPlugins( filesStatus, dependencyMap );
+
+	const benderFilters = [...testChanges, ...coreChanges, ...pluginChanges, ...adaptersChanges ];
+
+	return Array.from( new Set( benderFilters ) );
+}
+
+function removeExtensionFromPaths( filesStatus ) {
+	return filesStatus.map( ( [ status, filePath ] ) => {
 		return [
-			element[ 0 ],
+			status,
 			path.join(
-				path.dirname(element[ 1 ]),
+				path.dirname( filePath ),
 				path.basename(
-					element[ 1 ],
-					path.extname( element[ 1 ] )
+					filePath,
+					path.extname( filePath )
 				)
 			)
 		];
 	} );
+}
 
-	// TODO Temporary path for tests. I guess it should be configurable.
-	const pluginDependencies = dependencyMap || getDependencyMap( '../ckeditor4/plugins/' );
-
-	const testChanges = filesStatus
-		.filter( elem => elem[1].startsWith( 'tests/' ) )
-		.map( elem => {
-			const mode = elem[ 0 ];
-			const filePath = elem[ 1 ];
-
+function collectChangesInTests( filesStatus ){
+	return filesStatus.filter( elem => elem[ 1 ].startsWith( 'tests/' ) )
+		.map( ( [ mode, filePath ] ) => {
 			if( filePath.includes( '/manual/' ) ) {
 				return;
 			}
 
 			const pathRegExp = /(.*)(_assets|_helpers)(.*)/m;
-			const pathParts = filePath.match(pathRegExp);
+			const pathParts = filePath.match( pathRegExp );
 
 			if( pathParts ) {
 				// Add path to full test scope where additional assets was modified
@@ -50,23 +62,27 @@ function convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap = null )
 				// Add test for non deleted tests files
 				return testPathToBenderFilter( path.dirname( filePath ) );
 			}
-		});
+		} );
+}
 
-	// TODO if there are any core changes lets run tests for `dialog`, `widget` and `clipboard` plugins (with all the dependencies) too.
-	const coreChanges = filesStatus
-		.filter( elem => elem[1].startsWith( 'core/' ) )
-		.map(elem => {
-			return 'group:Core';
-		});
+function collectChangesInCore( filesStatus ) {
+	return filesStatus
+		.filter( elem => elem[ 1 ].startsWith( 'core/' ) )
+		.map( _ => 'group:Core' );
+}
 
-	const adaptersChanges = filesStatus
-		.filter( elem => elem[1].startsWith( 'adapters/' ) )
-		.map(elem => {
-			return 'group:Adapters';
-		});
+function collectChangesInAdapters( filesStatus ) {
+	return filesStatus
+		.filter( elem => elem[ 1 ].startsWith( 'adapters/' ) )
+		.map( _ => 'group:Adapters' );
+}
 
-	const pluginChanges = filesStatus
-		.filter( elem => elem[1].startsWith( 'plugins/' ) )
+function collectChangesInPlugins( filesStatus, dependencyMap ) {
+	// TODO Temporary path for tests. I guess it should be configurable.
+	const pluginDependencies = dependencyMap || getDependencyMap( '../ckeditor4/plugins/' );
+		
+	return filesStatus
+		.filter( elem => elem[ 1 ].startsWith( 'plugins/' ) )
 		.map(elem => {
 			const paths = [];
 			const filePath = elem[ 1 ];
@@ -74,7 +90,7 @@ function convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap = null )
 			const pluginRegExp = /(plugins\/([a-z0-9_-]+))/i;
 			const match = filePath.match(pluginRegExp);
 
-			paths.push(testPathToBenderFilter( path.join( 'tests', match[ 0 ] ) ) );
+			paths.push( testPathToBenderFilter( path.join( 'tests', match[ 0 ] ) ) );
 
 			const pluginName = match[ 2 ];
 			if ( pluginDependencies[ pluginName ] && pluginDependencies[ pluginName ].length ) {
@@ -84,11 +100,7 @@ function convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap = null )
 			}
 
 			return paths;
-		});
-
-	const benderFilters = [...testChanges, ...coreChanges, ...pluginChanges, ...adaptersChanges ];
-
-	return Array.from( new Set( benderFilters ) );
+		} );
 }
 
 module.exports = {
