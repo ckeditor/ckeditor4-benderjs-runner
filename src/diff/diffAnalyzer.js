@@ -92,19 +92,20 @@ function collectChangesInPlugins( filesStatus, dependencyMap ) {
 	const pluginDependencies = dependencyMap || getDependencyMap( '../ckeditor4/plugins/' );
 		
 	const filters = filesStatus
-		.filter( elem => elem[ 1 ].startsWith( 'plugins/' ) )
-		.flatMap( elem => {
-			const filePath = elem[ 1 ];
+		.filter( elem => elem[ 1 ].startsWith( 'plugins/' ) );
 
-			const pluginRegExp = /(plugins\/([a-z0-9_-]+))/i;
-			const [ deps, , pluginName ] = filePath.match( pluginRegExp );
+	filters.reduce( ( acc, elem ) => {
+		const filePath = elem[ 1 ];
 
-			let fiters = getFiltersForPluginDeps( pluginDependencies, pluginName );
+		const pluginRegExp = /(plugins\/([a-z0-9_-]+))/i;
+		const [ deps, , pluginName ] = filePath.match( pluginRegExp );
 
-			fiters = [ testPathToBenderFilter( path.join( 'tests', deps ) ), ...fiters ];
+		let fiters = getFiltersForPluginDeps( pluginDependencies, pluginName );
 
-			return fiters;
-		} );
+		fiters = [ testPathToBenderFilter( path.join( 'tests', deps ) ), ...fiters ];
+
+		return fiters;
+	}, [] );
 
 	return Array.from( new Set( filters ) );
 }
