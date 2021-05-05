@@ -91,20 +91,22 @@ function collectChangesInPlugins( filesStatus, dependencyMap ) {
 	// TODO Temporary path for tests. I guess it should be configurable.
 	const pluginDependencies = dependencyMap || getDependencyMap( '../ckeditor4/plugins/' );
 		
-	return filesStatus
+	const filters = filesStatus
 		.filter( elem => elem[ 1 ].startsWith( 'plugins/' ) )
-		.map(elem => {
+		.flatMap( elem => {
 			const filePath = elem[ 1 ];
 
 			const pluginRegExp = /(plugins\/([a-z0-9_-]+))/i;
 			const [ deps, , pluginName ] = filePath.match( pluginRegExp );
 
-			let filters = getFiltersForPluginDeps( pluginDependencies, pluginName );
+			let fiters = getFiltersForPluginDeps( pluginDependencies, pluginName );
 
-			filters = [ testPathToBenderFilter( path.join( 'tests', deps ) ), ...filters ];
+			fiters = [ testPathToBenderFilter( path.join( 'tests', deps ) ), ...fiters ];
 
-			return filters;
+			return fiters;
 		} );
+
+	return Array.from( new Set( filters ) );
 }
 
 function getFiltersForPluginDeps( pluginDependencies, pluginName ) {

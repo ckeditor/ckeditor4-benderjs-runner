@@ -8,36 +8,36 @@ describe('bender paths extractor', function() {
 	it('returns test path for file if ticket test file was added',
 		assertPaths(
 			[ [ 'A', 'tests/tickets/174/1.js' ] ],
-			'path:/tests/tickets/174'
+			[ 'path:/tests/tickets/174' ]
 		)
 	);
 
 	it('returns test path for plugin if plugin tests file was modified',
 		assertPaths(
 			[ [ 'M', 'tests/plugins/ajax/ajax.js' ] ],
-			'path:/tests/plugins/ajax'
+			[ 'path:/tests/plugins/ajax' ]
 		)
 	);
 
 	it('do not includes test if manual test was modified',
 		assertPaths(
-			[['M', 'tests/plugins/ajax/manual/optionalcallback.html']],
-			'path:/tests/plugins/ajax/manual/optionalcallback',
+			[ [ 'M', 'tests/plugins/ajax/manual/optionalcallback.html' ] ],
+			[ 'path:/tests/plugins/ajax/manual/optionalcallback' ],
 			false
 		)
 	);
 
 	it('include all non-manual plugin tests if helper or asset in plugin tests was modified',
 		assertPaths(
-			[['M', 'tests/plugins/dialog/_helpers/tools.js']],
-			'path:/tests/plugins/dialog'
+			[ [ 'M', 'tests/plugins/dialog/_helpers/tools.js' ] ],
+			[ 'path:/tests/plugins/dialog' ]
 		)
 	);
 
 	it('do not includes path for deleted file',
 		assertPaths(
 			[ [ 'D', 'tests/tickets/174/1.js' ] ],
-			'path:/tests/tickets/174',
+			[ 'path:/tests/tickets/174' ],
 			false
 		)
 	);
@@ -45,14 +45,14 @@ describe('bender paths extractor', function() {
 	it('include all core tests for changes in core',
 		assertPaths(
 			[ [ 'M', 'core/ckeditor.js' ] ],
-			'group:Core'
+			[ 'group:Core' ]
 		)
 	);
 
 	it('include all adapters tests for changes in adapters',
 		assertPaths(
 			[ [ 'M', 'adapters/jquery.js' ] ],
-			'group:Adapters'
+			[ 'group:Adapters' ]
 		)
 	);
 
@@ -74,7 +74,11 @@ describe('bender paths extractor', function() {
 				[ 'M', 'plugins/ajax/plugin.js' ],
 				[ 'A', 'plugins/ajax/samples/image.png' ]
 			],
-			[ 'path:/tests/plugins/ajax' ]
+			[ 
+				'path:/tests/plugins/ajax',
+				'path:/tests/plugins/cloudservices',
+				'path:/tests/plugins/emoji'
+			]
 		)
 	);
 
@@ -88,17 +92,46 @@ describe('bender paths extractor', function() {
 
 		assert(!filters.includes(''));
 	} );
+	it('test assertion', function() {
+		assert(containsSameElements([1,2],[2,1]));
+	} );
 
 });
 
-function assertPaths( changedFiles, expectedPath, shouldInclude = true ) {
+function assertPaths( changedFiles, expectedPaths, shouldInclude = true ) {
 	return function () {
 		const benderPaths = convertFilesStatusIntoBenderFilter( changedFiles, dependencyMapMock );
 
-		if( shouldInclude ) {
-			assert.deepStrictEqual( benderPaths, [ expectedPath ] );
+		if ( shouldInclude ) {
+			assert( containsSameElements( benderPaths, expectedPaths ) );
 		} else {
-			assert.notDeepStrictEqual( benderPaths, [ expectedPath ] );
+			assert( !includesAny( benderPaths, expectedPaths ) );
 		}
 	};
+}
+
+function containsSameElements( actuall, expected ) {
+	// Two arrays have the same length
+	// They contains the same elements, but not neccessary in the same order
+	// There are not duplicates in actuall array
+	if ( actuall.length !== expected.length ) {
+		console.log('not the same len');
+		return false;
+	}
+
+	const hasDuplicates = new Set( actuall ).size !== actuall.length;
+	if ( hasDuplicates ) {
+		return false;
+	}
+	return includesAny( actuall, expected );
+}
+
+function includesAny (actuall, expected ) {
+	for ( let expectedFilter of expected ) {
+		if ( !actuall.includes( expectedFilter ) ) {
+			return false;
+		}
+	}
+
+	return true;
 }
