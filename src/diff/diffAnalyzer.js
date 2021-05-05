@@ -45,7 +45,7 @@ function removeExtensionFromPaths( filesStatus ) {
 	} );
 }
 
-function collectChangesInTests( filesStatus ){
+function collectChangesInTests( filesStatus ) {
 	return filesStatus.filter( elem => elem[ 1 ].startsWith( 'tests/' ) )
 		.map( ( [ mode, filePath ] ) => {
 			if( filePath.includes( '/manual/' ) ) {
@@ -66,15 +66,25 @@ function collectChangesInTests( filesStatus ){
 }
 
 function collectChangesInCore( filesStatus ) {
-	return filesStatus
-		.filter( elem => elem[ 1 ].startsWith( 'core/' ) )
-		.map( _ => 'group:Core' );
+	const foundCoreChanges = filesStatus.find( elem => elem[ 1 ].startsWith( 'core/' ) );
+	const coreFilters = [];
+
+	if ( foundCoreChanges ) {
+		coreFilters.push( 'group:Core' );
+	}
+
+	return coreFilters;
 }
 
 function collectChangesInAdapters( filesStatus ) {
-	return filesStatus
-		.filter( elem => elem[ 1 ].startsWith( 'adapters/' ) )
-		.map( _ => 'group:Adapters' );
+	const foundAdapterChanges = filesStatus.find( elem => elem[ 1 ].startsWith( 'adapters/' ) );
+	const adapterFilters = [];
+
+	if ( foundAdapterChanges ) {
+		adapterFilters.push( 'group:Adapters' );
+	}
+
+	return adapterFilters;
 }
 
 function collectChangesInPlugins( filesStatus, dependencyMap ) {
@@ -84,23 +94,29 @@ function collectChangesInPlugins( filesStatus, dependencyMap ) {
 	return filesStatus
 		.filter( elem => elem[ 1 ].startsWith( 'plugins/' ) )
 		.map(elem => {
-			const paths = [];
 			const filePath = elem[ 1 ];
 
 			const pluginRegExp = /(plugins\/([a-z0-9_-]+))/i;
-			const match = filePath.match(pluginRegExp);
+			const [ deps, , pluginName ] = filePath.match( pluginRegExp );
 
-			paths.push( testPathToBenderFilter( path.join( 'tests', match[ 0 ] ) ) );
+			let filters = getFiltersForPluginDeps( pluginDependencies, pluginName );
 
-			const pluginName = match[ 2 ];
-			if ( pluginDependencies[ pluginName ] && pluginDependencies[ pluginName ].length ) {
-				pluginDependencies[ pluginName ].forEach( pluginName => {
-					paths.push( testPathToBenderFilter( path.join( 'tests', 'plugins', pluginName ) ) );
-				} );
-			}
+			filters = [ testPathToBenderFilter( path.join( 'tests', deps ) ), ...filters ];
 
-			return paths;
+			return filters;
 		} );
+}
+
+function getFiltersForPluginDeps( pluginDependencies, pluginName ) {
+	const filters = [];
+
+	if ( pluginDependencies[ pluginName ] && pluginDependencies[ pluginName ].length ) {
+		pluginDependencies[ pluginName ].forEach( pluginName => {
+			filters.push( testPathToBenderFilter( path.join( 'tests', 'plugins', pluginName ) ) );
+		} );
+	}
+
+	return filters;
 }
 
 module.exports = {
