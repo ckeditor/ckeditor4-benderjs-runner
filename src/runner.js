@@ -2,6 +2,7 @@ const launch = require( 'launchpad' );
 const { copyFile } = require( 'fs' );
 const { normalize } = require( 'path' );
 const { spawn } = require( 'child_process' );
+const { differ } = require( './diff/differ' );
 
 const args = process.argv.slice( 2 );
 const config = require( `./${ args[ 0 ] }` );
@@ -52,7 +53,8 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 	console.log( browsers );
 	console.log( '\n--- Launching tests...' );
 
-	const testsQuery = args[ 1 ] ? args[ 1 ] : ''; // For example: 'path:/tests/plugins/image2'.
+	const testsQuery = await differ( config.paths.ckeditor4 );
+
 	const url = `http://localhost:${ config.bender.port }/runner.html#port:${config.server.port},is:unit,${ testsQuery }`;
 
 	for ( const browser of browsers ) {
