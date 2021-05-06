@@ -46,12 +46,9 @@ function removeExtensionFromPaths( filesStatus ) {
 }
 
 function collectChangesInTests( filesStatus ) {
-	return filesStatus.filter( elem => elem[ 1 ].startsWith( 'tests/' ) )
+	const filters = filesStatus
+		.filter( elem => elem[ 1 ].startsWith( 'tests/' ) && !elem[ 1 ].includes( '/manual/' ) )
 		.map( ( [ mode, filePath ] ) => {
-			if( filePath.includes( '/manual/' ) ) {
-				return;
-			}
-
 			const pathRegExp = /(.*)(_assets|_helpers)(.*)/m;
 			const pathParts = filePath.match( pathRegExp );
 
@@ -63,6 +60,7 @@ function collectChangesInTests( filesStatus ) {
 				return testPathToBenderFilter( path.dirname( filePath ) );
 			}
 		} );
+	return filters;
 }
 
 function collectChangesInCore( filesStatus ) {
@@ -91,10 +89,10 @@ function collectChangesInPlugins( filesStatus, dependencyMap ) {
 	// TODO Temporary path for tests. I guess it should be configurable.
 	const pluginDependencies = dependencyMap || getDependencyMap( '../ckeditor4/plugins/' );
 		
-	const filters = filesStatus
+	let filters = filesStatus
 		.filter( elem => elem[ 1 ].startsWith( 'plugins/' ) );
 
-	filters.reduce( ( acc, elem ) => {
+	filters = filters.reduce( ( acc, elem ) => {
 		const filePath = elem[ 1 ];
 
 		const pluginRegExp = /(plugins\/([a-z0-9_-]+))/i;
