@@ -9,6 +9,7 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 	async function SpawnGitProcess() {
 		return new Promise( ( resolve, reject ) => {
 			const cwd = path.normalize( path.join( process.cwd(), repoRelativeDirectory ) );
+
 			const gitProcess = spawn(
 				'git',
 				[
@@ -16,7 +17,7 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 					`${ targetBranch }..${ currentBranch }`,
 					'--name-status'
 				],
-				{ cwd: cwd }
+				{ cwd }
 			);
 
 			gitProcess.stdout.on( 'data', data => {

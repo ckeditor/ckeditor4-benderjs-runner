@@ -1,14 +1,14 @@
 const path = require( 'path' );
 
 function parseGitOutput( gitOutput ) {
-	const filesStatus = gitOutput.split('\n').filter( s => s !== '');
+	const filesStatus = gitOutput.split( '\n' ).filter( s => s !== '' );
 
-	return filesStatus.map(fileStatus => {
-		return fileStatus.split('\t');
-	});
+	return filesStatus.map( fileStatus => {
+		return fileStatus.split( '\t' );
+	} );
 }
 
-function testPathToBenderFilter( testPath ) {
+function pathToBenderFilterPath( testPath ) {
 	return 'path:/' + testPath;
 }
 
@@ -24,7 +24,7 @@ function convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap = null )
 
 	const pluginChanges = collectChangesInPlugins( filesStatus, dependencyMap );
 
-	const benderFilters = [...testChanges, ...coreChanges, ...pluginChanges, ...adaptersChanges ];
+	const benderFilters = [ ...testChanges, ...coreChanges, ...pluginChanges, ...adaptersChanges ];
 
 	return Array.from( new Set( benderFilters ) );
 }
@@ -53,12 +53,13 @@ function collectChangesInTests( filesStatus ) {
 
 			if( pathParts ) {
 				// Add path to full test scope where additional assets was modified
-				return testPathToBenderFilter( pathParts[ 1 ].slice( 0, -1 ) );
+				return pathToBenderFilterPath( pathParts[ 1 ].slice( 0, -1 ) );
 			} else if ( mode !== 'D' ) {
 				// Add test for non deleted tests files
-				return testPathToBenderFilter( path.dirname( filePath ) );
+				return pathToBenderFilterPath( path.dirname( filePath ) );
 			}
 		} );
+
 	return filters;
 }
 
@@ -86,8 +87,7 @@ function collectChangesInAdapters( filesStatus ) {
 
 function collectChangesInPlugins( filesStatus, pluginDependencies ) {
 		
-	let filters = filesStatus
-		.filter( elem => elem[ 1 ].startsWith( 'plugins/' ) );
+	let filters = filesStatus.filter( elem => elem[ 1 ].startsWith( 'plugins/' ) );
 
 	filters = filters.reduce( ( acc, elem ) => {
 		const filePath = elem[ 1 ];
@@ -97,7 +97,7 @@ function collectChangesInPlugins( filesStatus, pluginDependencies ) {
 
 		let fiters = getFiltersForPluginDeps( pluginDependencies, pluginName );
 
-		fiters = [ testPathToBenderFilter( path.join( 'tests', deps ) ), ...fiters ];
+		fiters = [ pathToBenderFilterPath( path.join( 'tests', deps ) ), ...fiters ];
 
 		return fiters;
 	}, [] );
@@ -110,7 +110,7 @@ function getFiltersForPluginDeps( pluginDependencies, pluginName ) {
 
 	if ( pluginDependencies && pluginDependencies[ pluginName ] && pluginDependencies[ pluginName ].length ) {
 		pluginDependencies[ pluginName ].forEach( pluginName => {
-			filters.push( testPathToBenderFilter( path.join( 'tests', 'plugins', pluginName ) ) );
+			filters.push( pathToBenderFilterPath( path.join( 'tests', 'plugins', pluginName ) ) );
 		} );
 	}
 
