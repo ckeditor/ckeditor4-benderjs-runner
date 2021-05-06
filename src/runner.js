@@ -53,9 +53,14 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 	console.log( browsers );
 	console.log( '\n--- Launching tests...' );
 
-	const testsQuery = await differ( config.paths.ckeditor4 );
-	const url = `http://localhost:${ config.bender.port }/runner.html#port:${config.server.port},is:unit,${ testsQuery }`;
+	let testsQuery = '';
+	try {
+		testsQuery = await differ( config.paths.ckeditor4 );
+	} catch ( error ) {
+		console.log( `GIT.ERROR: ${ error } ` );
+	}
 
+	const url = `http://localhost:${ config.bender.port }/runner.html#port:${config.server.port},is:unit,${ testsQuery }`;
 	for ( const browser of browsers ) {
 		await runTests( localInstance, browser, url, testRunLogger );
 	}
