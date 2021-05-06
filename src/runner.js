@@ -57,7 +57,7 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 	try {
 		testsQuery = await differ( config.paths.ckeditor4 );
 	} catch ( error ) {
-		console.log( `GIT.ERROR: ${ error } ` );
+		console.log( `GIT.ERROR: ${ error }` );
 	}
 
 	const url = `http://localhost:${ config.bender.port }/runner.html#port:${config.server.port},is:unit,${ testsQuery }`;

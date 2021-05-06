@@ -92,9 +92,6 @@ describe('bender paths extractor', function() {
 
 		assert(!filters.includes(''));
 	} );
-	it('test assertion', function() {
-		assert(containsSameElements([1,2],[2,1]));
-	} );
 
 });
 

@@ -1,5 +1,4 @@
 const path = require( 'path' );
-const { getDependencyMap } = require( './plugins' );
 
 function parseGitOutput( gitOutput ) {
 	const filesStatus = gitOutput.split('\n').filter( s => s !== '');
@@ -85,9 +84,7 @@ function collectChangesInAdapters( filesStatus ) {
 	return adapterFilters;
 }
 
-function collectChangesInPlugins( filesStatus, dependencyMap ) {
-	// TODO Temporary path for tests. I guess it should be configurable.
-	const pluginDependencies = dependencyMap || getDependencyMap( '../ckeditor4/plugins/' );
+function collectChangesInPlugins( filesStatus, pluginDependencies ) {
 		
 	let filters = filesStatus
 		.filter( elem => elem[ 1 ].startsWith( 'plugins/' ) );
@@ -111,7 +108,7 @@ function collectChangesInPlugins( filesStatus, dependencyMap ) {
 function getFiltersForPluginDeps( pluginDependencies, pluginName ) {
 	const filters = [];
 
-	if ( pluginDependencies[ pluginName ] && pluginDependencies[ pluginName ].length ) {
+	if ( pluginDependencies && pluginDependencies[ pluginName ] && pluginDependencies[ pluginName ].length ) {
 		pluginDependencies[ pluginName ].forEach( pluginName => {
 			filters.push( testPathToBenderFilter( path.join( 'tests', 'plugins', pluginName ) ) );
 		} );

@@ -1,6 +1,7 @@
 const { spawn } = require( 'child_process' );
 const path = require( 'path' );
 const { parseGitOutput, convertFilesStatusIntoBenderFilter } = require( './diffAnalyzer' );
+const { getDependencyMap } = require( './plugins' );
 
 const differ = function( repoRelativeDirectory, targetBranch = 'master', currentBranch = '' ) {
 	let bufferedChanges = [];
@@ -20,16 +21,18 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 
 			gitProcess.stdout.on( 'data', data => {
 				const filesStatus = parseGitOutput( data.toString() );
-				const benderFilters = convertFilesStatusIntoBenderFilter( filesStatus );
+				const dependencyMap = getDependencyMap( path.join( repoRelativeDirectory, 'plugins/' ) );
 
-				bufferedChanges = [...bufferedChanges, ...benderFilters];
+				const benderFilters = convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap );
+
+				bufferedChanges = [ ...bufferedChanges, ...benderFilters ];
 			} );
 
 			gitProcess.on( 'error', ( error ) => {
 				reject( error );
 			} );
 
-			gitProcess.on( 'close', ( code, b ) => {
+			gitProcess.on( 'close', ( code, signal ) => {
 				const generatedFilters = bufferedChanges.join( ',' );
 				resolve( generatedFilters );
 			} );
