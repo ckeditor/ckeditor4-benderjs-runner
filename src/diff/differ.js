@@ -4,8 +4,8 @@ const { parseGitOutput, convertFilesStatusIntoBenderFilter } = require( './diffA
 
 const differ = function( repoRelativeDirectory, targetBranch = 'master', currentBranch = '' ) {
 	let bufferedChanges = [];
-	
-	( async function() {
+
+	async function SpawnGitProcess() {
 		return new Promise( ( resolve, reject ) => {
 			const cwd = path.normalize( path.join( process.cwd(), repoRelativeDirectory ) );
 			const gitProcess = spawn(
@@ -20,10 +20,9 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 
 			gitProcess.stdout.on( 'data', data => {
 				const filesStatus = parseGitOutput( data.toString() );
-				//console.log('asd', filesStatus);
 				const benderFilters = convertFilesStatusIntoBenderFilter( filesStatus );
-//console.log(benderFilters);
-				bufferedChanges = [...bufferedChanges, benderFilters];
+
+				bufferedChanges = [...bufferedChanges, ...benderFilters];
 			} );
 
 			gitProcess.on( 'error', ( error ) => {
@@ -32,11 +31,12 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 
 			gitProcess.on( 'close', ( code, b ) => {
 				const generatedFilters = bufferedChanges.join( ',' );
-				//console.log('generated filters:', generatedFilters.length);
 				resolve( generatedFilters );
 			} );
 		} );
-	} )();
+	};
+
+	return SpawnGitProcess();
 };
 
 module.exports = {
