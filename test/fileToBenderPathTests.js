@@ -100,9 +100,9 @@ function assertPaths( changedFiles, expectedPaths, shouldInclude = true ) {
 		const benderPaths = convertFilesStatusIntoBenderFilter( changedFiles, dependencyMapMock );
 
 		if ( shouldInclude ) {
-			assert( containsSameElements( benderPaths, expectedPaths ) );
+			assert( containsSameElements( benderPaths, expectedPaths ), `Expected:\n ${ expectedPaths } \n but got:\n ${ benderPaths }` );
 		} else {
-			assert( !includesAny( benderPaths, expectedPaths ) );
+			assert( !includesAny( benderPaths, expectedPaths ), `Generated paths:\n ${ benderPaths } shoud NOT cointains any of\n ${ expectedPaths }` );
 		}
 	};
 }
