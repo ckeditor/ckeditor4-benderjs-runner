@@ -42,12 +42,27 @@ describe( 'bender paths extractor', function() {
 		)
 	);
 
-	it( 'include all core tests for changes in core',
+	it( 'include all core tests for changes in core', function() {
+		const dependencyMapMock = {
+			'dialog': [ 'fakeDialogDep' ],
+			'widget': [ 'fakeWidgetDep' ],
+			'clipboard': [ 'fakeClipboardDep' ]
+		};
 		assertPaths(
 			[ [ 'M', 'core/ckeditor.js' ] ],
-			[ 'group:Core' ]
-		)
-	);
+			[
+				'group:Core',
+				'path:/tests/plugins/dialog',
+				'path:/tests/plugins/fakeDialogDep',
+				'path:/tests/plugins/widget',
+				'path:/tests/plugins/fakeWidgetDep',
+				'path:/tests/plugins/clipboard',
+				'path:/tests/plugins/fakeClipboardDep',
+			],
+			true,
+			dependencyMapMock
+		)();
+	} );
 
 	it( 'include all adapters tests for changes in adapters',
 		assertPaths(
@@ -95,9 +110,9 @@ describe( 'bender paths extractor', function() {
 
 });
 
-function assertPaths( changedFiles, expectedPaths, shouldInclude = true ) {
+function assertPaths( changedFiles, expectedPaths, shouldInclude = true , dependencyMap = dependencyMapMock  ) {
 	return function () {
-		const benderPaths = convertFilesStatusIntoBenderFilter( changedFiles, dependencyMapMock );
+		const benderPaths = convertFilesStatusIntoBenderFilter( changedFiles, dependencyMap );
 
 		if ( shouldInclude ) {
 			assert( containsSameElements( benderPaths, expectedPaths ),

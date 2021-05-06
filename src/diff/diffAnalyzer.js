@@ -18,7 +18,7 @@ function convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap = null )
 	const testChanges = collectChangesInTests( filesStatus );
 
 	// TODO if there are any core changes lets run tests for `dialog`, `widget` and `clipboard` plugins (with all the dependencies) too.
-	const coreChanges = collectChangesInCore( filesStatus );
+	const coreChanges = collectChangesInCore( filesStatus, dependencyMap );
 
 	const adaptersChanges = collectChangesInAdapters ( filesStatus );
 
@@ -63,7 +63,7 @@ function collectChangesInTests( filesStatus ) {
 	return filters;
 }
 
-function collectChangesInCore( filesStatus ) {
+function collectChangesInCore( filesStatus, dependencyMap ) {
 	const foundCoreChanges = filesStatus.find( elem => elem[ 1 ].startsWith( 'core/' ) );
 	const coreFilters = [];
 
@@ -71,7 +71,13 @@ function collectChangesInCore( filesStatus ) {
 		coreFilters.push( 'group:Core' );
 	}
 
-	return coreFilters;
+	const additionalPluginDeps = [ 'dialog', 'widget', 'clipboard' ];
+	const collectedDeps = additionalPluginDeps.reduce( ( acc, plugin ) => {
+		const deps = getFiltersForPluginDeps( dependencyMap, plugin );
+		return [ ...acc, ...deps ];
+	}, [] );
+
+	return [ ...coreFilters, ...collectedDeps ];
 }
 
 function collectChangesInAdapters( filesStatus ) {
