@@ -17,7 +17,6 @@ function convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap = null )
 
 	const testChanges = collectChangesInTests( filesStatus );
 
-	// TODO if there are any core changes lets run tests for `dialog`, `widget` and `clipboard` plugins (with all the dependencies) too.
 	const coreChanges = collectChangesInCore( filesStatus, dependencyMap );
 
 	const adaptersChanges = collectChangesInAdapters ( filesStatus );
