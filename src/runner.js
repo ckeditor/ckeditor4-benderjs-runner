@@ -45,8 +45,8 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 
 	let browsers = await getBrowsers( localInstance, os, config );
 	// Use specific browser only.
-	if ( args[ 2 ] && args[ 2 ].length ) {
-		browsers = browsers.filter( browserData => browserData.name == args[ 2 ] );
+	if ( args[ 1 ] && args[ 1 ].length ) {
+		browsers = browsers.filter( browserData => browserData.name == args[ 1 ] );
 	}
 
 	console.log( `\n--- Testing on ${ os } with browsers:` );
