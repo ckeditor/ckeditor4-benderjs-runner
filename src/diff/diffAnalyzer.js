@@ -72,10 +72,9 @@ function collectChangesInCore( filesStatus, dependencyMap ) {
 		const additionalPluginDeps = [ 'dialog', 'widget', 'clipboard' ];
 
 		const collectedDeps = additionalPluginDeps.reduce( ( acc, plugin ) => {
-			const pluginFilter = pathToBenderFilterPath( `tests/plugins/${ plugin }` );
-			const deps = getFiltersForPluginDeps( dependencyMap, plugin );
+			const deps = getFiltersForPlugin( dependencyMap, plugin );
 
-			return [ ...acc, pluginFilter, ...deps ];
+			return [ ...acc, ...deps ];
 		}, [] );
 
 		coreFilters = [ ...coreFilters, ...collectedDeps ];
@@ -105,18 +104,16 @@ function collectChangesInPlugins( filesStatus, pluginDependencies ) {
 		const pluginRegExp = /(plugins\/([a-z0-9_-]+))/i;
 		const [ deps, , pluginName ] = filePath.match( pluginRegExp );
 
-		let fiters = getFiltersForPluginDeps( pluginDependencies, pluginName );
+		const pluginFilters = getFiltersForPlugin( pluginDependencies, pluginName );
 
-		fiters = [ pathToBenderFilterPath( path.join( 'tests', deps ) ), ...fiters ];
-
-		return fiters;
+		return pluginFilters;
 	}, [] );
 
 	return Array.from( new Set( filters ) );
 }
 
-function getFiltersForPluginDeps( pluginDependencies, pluginName ) {
-	const filters = [];
+function getFiltersForPlugin( pluginDependencies, pluginName ) {
+	const filters = [ pathToBenderFilterPath( path.join( 'tests', 'plugins', pluginName ) ) ];
 
 	if ( pluginDependencies && pluginDependencies[ pluginName ] && pluginDependencies[ pluginName ].length ) {
 		pluginDependencies[ pluginName ].forEach( pluginName => {
