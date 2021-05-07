@@ -37,6 +37,7 @@ Backend runner is the main script here which launches the entire testing procedu
 * Inject frontend runner (`runner.html`) into bender NPM deps.
 * Launch bender.
 * Launch server.
+* Generate bender filters based on the difference between target and current branch.
 * Launch browser instance with given URL pointing to frontend runner.
     * Wait for test run to finish.
 * Launch another browser instance (based on config)
@@ -95,20 +96,38 @@ _You can also change `bender-runner.config.json` config `paths.ckeditor4` proper
 3. Go back to main repo dir and run:
 
 ```bash
-npm run test '../bender-runner.config.json' 'path:/tests/plugins/image2'
+npm run test '../bender-runner.config.json'
 ```
 
 This will run `image2` unit tests in all browser defined in config file available in your OS.
 
----
 
-Additionally, 3rd parameter can be passed specifying single browser only on which to run tests, for example:
+Additionally, second parameter can be passed specifying single browser only on which to run tests, for example:
 
 ```bash
-npm run test '../bender-runner.config.json' 'path:/tests/plugins/image2' 'chrome'
+npm run test '../bender-runner.config.json' 'chrome'
 ```
 
 With such call, even though more browsers may be available on host OS and config may have multiple names listed, tests will be run only on this single browser.
+
+## Bender filters generator
+
+Based on `git diff` command, it produce string with all filters that could be use in URL as bender path.
+
+Import `{ differ }` from `./src/diff/differ`, Then invoke:
+
+```js
+const filters = await differ( relatviePathToCKEditor4Repo, targetBranch, currentBranch );
+```
+
+It is a good idea to wrap it with `try...catch` in case something goes wrong.
+
+### Testing bender filter generator
+
+Verification if git diff is mapping correctly to bender filters is in `test/fileToBenderPathTests.js` file. Run those tests with:
+```bash
+mocha
+```
 
 ## What's next?
 
