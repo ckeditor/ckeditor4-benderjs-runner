@@ -65,19 +65,24 @@ function collectChangesInTests( filesStatus ) {
 
 function collectChangesInCore( filesStatus, dependencyMap ) {
 	const foundCoreChanges = filesStatus.find( elem => elem[ 1 ].startsWith( 'core/' ) );
-	const coreFilters = [];
+	let coreFilters = [];
 
 	if ( foundCoreChanges ) {
 		coreFilters.push( 'group:Core' );
+
+		const additionalPluginDeps = [ 'dialog', 'widget', 'clipboard' ];
+
+		const collectedDeps = additionalPluginDeps.reduce( ( acc, plugin ) => {
+			const pluginFilter = pathToBenderFilterPath( `tests/plugins/${ plugin }` );
+			const deps = getFiltersForPluginDeps( dependencyMap, plugin );
+
+			return [ ...acc, pluginFilter, ...deps ];
+		}, [] );
+
+		coreFilters = [ ...coreFilters, ...collectedDeps ];
 	}
 
-	const additionalPluginDeps = [ 'dialog', 'widget', 'clipboard' ];
-	const collectedDeps = additionalPluginDeps.reduce( ( acc, plugin ) => {
-		const deps = getFiltersForPluginDeps( dependencyMap, plugin );
-		return [ ...acc, ...deps ];
-	}, [] );
-
-	return [ ...coreFilters, ...collectedDeps ];
+	return coreFilters;
 }
 
 function collectChangesInAdapters( filesStatus ) {
