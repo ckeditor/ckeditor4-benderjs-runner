@@ -55,7 +55,7 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 
 	let testsQuery = '';
 	try {
-		testsQuery = await differ( config.paths.ckeditor4 );
+		testsQuery = await differ( config.paths.ckeditor4, config.repository.targetBranch, config.repository.currentBranch );
 	} catch ( error ) {
 		console.log( `GIT.ERROR: ${ error }` );
 	}
