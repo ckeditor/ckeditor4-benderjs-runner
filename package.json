@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node src/runner.js",
+    "run": "node src/runner.js",
     "sub:bender": "node src/bender.js",
-    "sub:server": "node src/server.js"
+    "sub:server": "node src/server.js",
+    "test": "mocha"
   },
   "author": "",
   "license": "ISC",
