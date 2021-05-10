@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "run": "node src/runner.js",
+    "start": "node src/runner.js",
     "sub:bender": "node src/bender.js",
     "sub:server": "node src/server.js",
     "test": "mocha"

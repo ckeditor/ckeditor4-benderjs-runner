@@ -31,9 +31,14 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 	let testsQuery = '';
 	try {
 		testsQuery = await differ( config.paths.ckeditor4, targetBranch, currentBranch );
-		console.log( '\n--- Tests query: ' + testsQuery );
+		console.log( '\n--- Tests query: "' + testsQuery + '"' );
 	} catch ( error ) {
 		console.log( `GIT.ERROR: ${ error }` );
+		terminate( 1 );
+	}
+
+	if ( testsQuery.length === 0 ) {
+		console.log( '\n--- Tests query empty. Skipping test run.' );
 		terminate( 1 );
 	}
 
