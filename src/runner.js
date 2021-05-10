@@ -23,15 +23,15 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 		terminate( 1, benderProcess, serverProcess );
 	} );
 
-	console.log( `\n--- Copying Bender runner...` );
+	console.log( '\n--- Copying Bender runner...' );
 	await copyRunner( config.paths );
 
-	console.log( `\n--- Generating tests query...` );
+	console.log( `\n--- Generating tests query. Diffing ${ targetBranch } and ${ currentBranch }...` );
 
 	let testsQuery = '';
 	try {
 		testsQuery = await differ( config.paths.ckeditor4, targetBranch, currentBranch );
-		console.log( '\n--- Tests query: "' + testsQuery + '"' );
+		console.log( `\n--- Tests query: ${ testsQuery }.` );
 	} catch ( error ) {
 		console.log( `GIT.ERROR: ${ error }` );
 		terminate( 1 );
