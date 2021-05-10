@@ -6,6 +6,8 @@ const { differ } = require( './diff/differ' );
 
 const args = process.argv.slice( 2 );
 const config = require( `./${ args[ 0 ] }` );
+const targetBranch = args[ 1 ];
+const currentBranch = args[ 2 ];
 
 console.log( `Loaded config from ${ args[ 0 ] }` );
 
@@ -23,6 +25,17 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 
 	console.log( `\n--- Copying Bender runner...` );
 	await copyRunner( config.paths );
+
+	console.log( `\n--- Generating tests query...` );
+
+	let testsQuery = '';
+	try {
+		testsQuery = await differ( config.paths.ckeditor4, targetBranch, currentBranch );
+		console.log( '\n--- Tests query: ' + testsQuery );
+	} catch ( error ) {
+		console.log( `GIT.ERROR: ${ error }` );
+		terminate( 1 );
+	}
 
 	console.log( '\n--- Launching bender...' );
 
@@ -45,20 +58,13 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 
 	let browsers = await getBrowsers( localInstance, os, config );
 	// Use specific browser only.
-	if ( args[ 1 ] && args[ 1 ].length ) {
+	if ( args[ 3 ] && args[ 3 ].length ) {
 		browsers = browsers.filter( browserData => browserData.name == args[ 1 ] );
 	}
 
 	console.log( `\n--- Testing on ${ os } with browsers:` );
 	console.log( browsers );
 	console.log( '\n--- Launching tests...' );
-
-	let testsQuery = '';
-	try {
-		testsQuery = await differ( config.paths.ckeditor4, config.repository.targetBranch, config.repository.currentBranch );
-	} catch ( error ) {
-		console.log( `GIT.ERROR: ${ error }` );
-	}
 
 	const url = `http://localhost:${ config.bender.port }/runner.html#port:${config.server.port},is:unit,${ testsQuery }`;
 	for ( const browser of browsers ) {
