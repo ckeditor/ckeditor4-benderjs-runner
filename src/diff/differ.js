@@ -20,8 +20,6 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 				{ cwd }
 			);
 
-			console.log( `git diff ${ targetBranch }..${ currentBranch } --name-status in ${ cwd }` );
-
 			gitProcess.stdout.on( 'data', data => {
 				const filesStatus = parseGitOutput( data.toString() );
 				const dependencyMap = getDependencyMap( path.join( repoRelativeDirectory, 'plugins/' ) );
@@ -37,7 +35,6 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 
 			gitProcess.on( 'close', ( code, signal ) => {
 				const generatedFilters = bufferedChanges.join( ',' );
-				console.log( generatedFilters );
 				resolve( generatedFilters );
 			} );
 		} );
