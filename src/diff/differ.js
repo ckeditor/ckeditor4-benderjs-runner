@@ -24,13 +24,10 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 
 			gitProcess.stdout.on( 'data', data => {
 				const filesStatus = parseGitOutput( data.toString() );
-				console.log(filesStatus);
 				const dependencyMap = getDependencyMap( path.join( repoRelativeDirectory, 'plugins/' ) );
-console.log('**');
-				console.log(dependencyMap);
+
 				const benderFilters = convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap );
-console.log('**');
-console.log(benderFilters);
+
 				bufferedChanges = [ ...bufferedChanges, ...benderFilters ];
 			} );
 
