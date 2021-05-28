@@ -25,6 +25,7 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 	} );
 
 	console.log( '\n--- Copying Bender runner...' );
+
 	await copyRunner( config.paths );
 
 	console.log( `\n--- Generating tests query. Diffing ${ targetBranch } and ${ currentBranch }...` );
@@ -36,12 +37,14 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 		} catch ( error ) {
 			console.log( `GIT.ERROR: ${ error }` );
 			terminate( 1 );
+			return;
 		}
 	}
 
 	if ( testsQuery.length === 0 && !fullRun ) {
 		console.log( '\n--- Tests query empty. Skipping test run.' );
-		terminate( 1 );
+		terminate( 0 );
+		return;
 	}
 
 	console.log( `\n--- Tests query: ${ testsQuery }. Full run: ${ fullRun ? 'true' : 'false' }.` );
@@ -51,6 +54,7 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 	benderProcess = await launchBender();
 	if ( !benderProcess ) {
 		terminate( 1 );
+		return;
 	}
 
 	console.log( '\n--- Launching server...' );
@@ -60,6 +64,7 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 	serverProcess = await launchServer( config, testRunLogger );
 	if ( !serverProcess ) {
 		terminate( 1, benderProcess );
+		return;
 	}
 
 	const os = getOS();
