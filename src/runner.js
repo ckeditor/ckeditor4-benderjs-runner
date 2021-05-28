@@ -8,7 +8,7 @@ const args = process.argv.slice( 2 );
 const config = require( `./${ args[ 0 ] }` );
 const targetBranch = args[ 1 ];
 const currentBranch = args[ 2 ];
-const fullRun = args[ 4 ] || false;
+const fullRun = !!( args[ 4 ] );
 
 console.log( `Loaded config from ${ args[ 0 ] }` );
 
@@ -30,18 +30,21 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 	console.log( `\n--- Generating tests query. Diffing ${ targetBranch } and ${ currentBranch }...` );
 
 	let testsQuery = '';
-	try {
-		testsQuery = await differ( config.paths.ckeditor4, targetBranch, currentBranch );
-		console.log( `\n--- Tests query: ${ testsQuery }. Full run: ${ fullRun ? 'true' : 'false' }.` );
-	} catch ( error ) {
-		console.log( `GIT.ERROR: ${ error }` );
-		terminate( 1 );
+	if ( !fullRun ) {
+		try {
+			testsQuery = await differ( config.paths.ckeditor4, targetBranch, currentBranch );
+		} catch ( error ) {
+			console.log( `GIT.ERROR: ${ error }` );
+			terminate( 1 );
+		}
 	}
 
 	if ( testsQuery.length === 0 && !fullRun ) {
 		console.log( '\n--- Tests query empty. Skipping test run.' );
 		terminate( 1 );
 	}
+
+	console.log( `\n--- Tests query: ${ testsQuery }. Full run: ${ fullRun ? 'true' : 'false' }.` );
 
 	console.log( '\n--- Launching bender...' );
 
