@@ -9,10 +9,6 @@
     "ckeditor4": "./ckeditor4/",
     "runner": "./src/runner.html"
   },
-  "repository": {
-	"targetBranch": "master",
-	"currentBranch": ""
-  },
   "browsers": {
     "linux": [ "chrome", "firefox" ],
     "windows": [ "edge", "ie11" ],
