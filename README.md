@@ -32,7 +32,7 @@ The last thing it does, on every test run, runner sends its status (or rather en
 
 ### Backend runner
 
-Backend runner is the main script here which launches the entire testing procedure. On the high level what is does is:
+Backend runner is the main script here which launches the entire testing procedure. On the high level what it does is:
 
 * Inject frontend runner (`runner.html`) into bender NPM deps.
 * Launch bender.
@@ -96,19 +96,24 @@ _You can also change `bender-runner.config.json` config `paths.ckeditor4` proper
 3. Go back to main repo dir and run:
 
 ```bash
-npm run test '../bender-runner.config.json'
+npm run start '../bender-runner.config.json' 'master' 'major'
 ```
 
-This will run `image2` unit tests in all browser defined in config file available in your OS.
+This will run specific unit tests based on [difference](#bender-filters-generator) between local `master` and `major` branches in all browser defined in config file available in your OS.
 
-
-Additionally, second parameter can be passed specifying single browser only on which to run tests, for example:
+Another parameter can be passed specifying single browser only on which to run tests, for example:
 
 ```bash
-npm run test '../bender-runner.config.json' 'chrome'
+npm run start '../bender-runner.config.json' 'master' 'major' 'chrome'
 ```
 
 With such call, even though more browsers may be available on host OS and config may have multiple names listed, tests will be run only on this single browser.
+
+Another flag can be passed to force full test run - no matter the diff between branches all unit test will run:
+
+```bash
+npm run start '../bender-runner.config.json' 'master' 'major' 'chrome' 'fullRun'
+```
 
 ## Bender filters generator
 
@@ -125,15 +130,16 @@ It is a good idea to wrap it with `try...catch` in case something goes wrong.
 ### Testing bender filter generator
 
 Verification if git diff is mapping correctly to bender filters is in `test/fileToBenderPathTests.js` file. Run those tests with:
+
 ```bash
 mocha
 ```
 
 ## What's next?
 
-1. Script for checking changes based on git diff and running only affected tests.
-1. Integrate with GH Actions/Workflows.
-1. Closing browser instances correctly.
+1. ~~Script for checking changes based on git diff and running only affected tests.~~
+1. ~~Integrate with GH Actions/Workflows.~~ (went with Travis CI for now)
+1. ~~Closing browser instances correctly.~~
 1. Integration with BrowserStack (API is there, we also need tunneling here - BS has it or use e.g. `ngrok`).
 
 ### 1. Script for checking changes based on git diff and running only affected tests.
