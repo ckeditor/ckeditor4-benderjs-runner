@@ -13,8 +13,9 @@
   "license": "ISC",
   "dependencies": {
     "fastify": "^3.4.1",
-    "launchpad": "^0.7.5",
-    "mocha": "^8.2.1",
-    "ngrok": "^3.3.0"
+    "launchpad": "^0.7.5"
+  },
+  "devDependencies": {
+    "mocha": "^8.2.1"
   }
 }
