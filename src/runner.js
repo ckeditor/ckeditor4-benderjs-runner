@@ -2,9 +2,13 @@ const launch = require( 'launchpad' );
 const { copyFile } = require( 'fs' );
 const { normalize } = require( 'path' );
 const { spawn } = require( 'child_process' );
+const { differ } = require( './diff/differ' );
 
 const args = process.argv.slice( 2 );
 const config = require( `./${ args[ 0 ] }` );
+const targetBranch = args[ 1 ];
+const currentBranch = args[ 2 ];
+const fullRun = !!( args[ 4 ] );
 
 console.log( `Loaded config from ${ args[ 0 ] }` );
 
@@ -20,8 +24,27 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 		terminate( 1, benderProcess, serverProcess );
 	} );
 
-	console.log( `\n--- Copying Bender runner...` );
+	console.log( '\n--- Copying Bender runner...' );
 	await copyRunner( config.paths );
+
+	console.log( `\n--- Generating tests query. Diffing ${ targetBranch } and ${ currentBranch }...` );
+
+	let testsQuery = '';
+	if ( !fullRun ) {
+		try {
+			testsQuery = await differ( config.paths.ckeditor4, targetBranch, currentBranch );
+		} catch ( error ) {
+			console.log( `GIT.ERROR: ${ error }` );
+			terminate( 1 );
+		}
+	}
+
+	if ( testsQuery.length === 0 && !fullRun ) {
+		console.log( '\n--- Tests query empty. Skipping test run.' );
+		terminate( 1 );
+	}
+
+	console.log( `\n--- Tests query: ${ testsQuery }. Full run: ${ fullRun ? 'true' : 'false' }.` );
 
 	console.log( '\n--- Launching bender...' );
 
@@ -44,17 +67,15 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 
 	let browsers = await getBrowsers( localInstance, os, config );
 	// Use specific browser only.
-	if ( args[ 2 ] && args[ 2 ].length ) {
-		browsers = browsers.filter( browserData => browserData.name == args[ 2 ] );
+	if ( args[ 3 ] && args[ 3 ].length ) {
+		browsers = browsers.filter( browserData => browserData.name == args[ 3 ] );
 	}
 
 	console.log( `\n--- Testing on ${ os } with browsers:` );
 	console.log( browsers );
 	console.log( '\n--- Launching tests...' );
 
-	const testsQuery = args[ 1 ] ? args[ 1 ] : ''; // For example: 'path:/tests/plugins/image2'.
 	const url = `http://localhost:${ config.bender.port }/runner.html#port:${config.server.port},is:unit,${ testsQuery }`;
-
 	for ( const browser of browsers ) {
 		await runTests( localInstance, browser, url, testRunLogger );
 	}
