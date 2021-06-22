@@ -185,13 +185,20 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 	async function launchServer( config, testRunLogger ) {
 		return new Promise( ( res, rej ) => {
 			const server = spawnNPMProcess( [ 'run', 'sub:server', config.server.port ] );
+			const msgBuffer = [];
 
 			server.stdout.on( 'data', data => {
-				const msg = data.toString();
+				const msg = data.toString().trim();
 
-				// console.log( `SERVER: ${ msg.trim() }` );
+				if ( msg.endsWith( '}' ) ) {
+					const jointMsg = msgBuffer.join( '' ) + msg;
 
-				testRunLogger.passMsg( msg.trim() );
+					msgBuffer.length = 0;
+
+					testRunLogger.passMsg( jointMsg.trim() );
+				} else if ( !msg.startsWith( '{' ) || !msg.endsWith( '}' ) ) {
+					msgBuffer.push( msg );
+				}
 
 				if ( msg.toLowerCase().includes( 'server started at' ) ) {
 					res( server );
