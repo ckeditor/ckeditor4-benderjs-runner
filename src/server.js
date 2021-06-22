@@ -1,4 +1,6 @@
-const app = require( 'fastify' )( { logger: true } );
+const { resolve: resolvePath } = require( 'path' );
+const pino = require( 'pino' );
+const app = require( 'fastify' )( { logger: createLogger() } );
 const args = process.argv.slice( 2 );
 
 if ( isNaN( args[ 0 ] ) ) {
@@ -15,9 +17,23 @@ app.post( '/', ( request, reply ) => {
 
 app.listen( Number( args[ 0 ] ), ( error , address ) => {
 	if ( error ) {
-		app.log.error( error );
+		logAndDisplay( error, 'error' );
 		process.exit( 1 );
 	}
 
-	app.log.info( `Server started at ${ address }.` );
+	logAndDisplay( `Server started at ${ address }.` );
 } );
+
+function createLogger() {
+	const logPath = resolvePath( __dirname, '..', '.fastify.log' );
+	const destination = pino.destination( logPath );
+
+	return pino( destination );
+}
+
+function logAndDisplay( msg, type = 'info' ) {
+	const consoleMethod = type === 'error' ? 'error' : 'log';
+
+	app.log[ type ]( msg );
+	console[ consoleMethod ]( JSON.stringify( msg ) );
+}
