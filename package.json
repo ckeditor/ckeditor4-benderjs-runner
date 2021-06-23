@@ -13,7 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "fastify": "^3.4.1",
-    "launchpad": "^0.7.5"
+    "launchpad": "^0.7.5",
+    "pino": "^6.11.3"
   },
   "devDependencies": {
     "mocha": "^8.2.1"
