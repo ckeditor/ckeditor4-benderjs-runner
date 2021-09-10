@@ -30,6 +30,8 @@ function convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap = null )
 
 function removeExtensionFromPaths( filesStatus ) {
 	return filesStatus.map( ( [ status, filePath ] ) => {
+		console.log(status);
+		console.log(filePath);
 		return [
 			status,
 			path.join(
