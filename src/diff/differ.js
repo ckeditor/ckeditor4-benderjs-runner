@@ -4,7 +4,7 @@ const { parseGitOutput, convertFilesStatusIntoBenderFilter } = require( './diffA
 const { getDependencyMap } = require( './plugins' );
 
 const differ = function( repoRelativeDirectory, targetBranch = 'master', currentBranch = '' ) {
-	let bufferedChanges = [];
+	let bufferedGitOutput = [];
 
 	async function SpawnGitProcess() {
 		return new Promise( ( resolve, reject ) => {
@@ -21,12 +21,7 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 			);
 
 			gitProcess.stdout.on( 'data', data => {
-				const filesStatus = parseGitOutput( data.toString() );
-				const dependencyMap = getDependencyMap( path.join( repoRelativeDirectory, 'plugins/' ) );
-
-				const benderFilters = convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap );
-
-				bufferedChanges = [ ...bufferedChanges, ...benderFilters ];
+				bufferedGitOutput.push( data.toString() );
 			} );
 
 			gitProcess.on( 'error', ( error ) => {
@@ -34,8 +29,14 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 			} );
 
 			gitProcess.on( 'close', ( code, signal ) => {
-				const generatedFilters = bufferedChanges.join( ',' );
-				resolve( generatedFilters );
+				const data = bufferedGitOutput.join( '' );
+
+				const filesStatus = parseGitOutput( data.toString() );
+				const dependencyMap = getDependencyMap( path.join( repoRelativeDirectory, 'plugins/' ) );
+
+				const benderFilters = convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap );	
+
+				resolve( benderFilters );
 			} );
 		} );
 	};
