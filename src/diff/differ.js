@@ -31,10 +31,10 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 			gitProcess.on( 'close', ( code, signal ) => {
 				const data = bufferedGitOutput.join( '' );
 
-				const filesStatus = parseGitOutput( data.toString() );
+				const filesStatus = parseGitOutput( data );
 				const dependencyMap = getDependencyMap( path.join( repoRelativeDirectory, 'plugins/' ) );
 
-				const benderFilters = convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap );	
+				const benderFilters = convertFilesStatusIntoBenderFilter( filesStatus, dependencyMap );
 
 				resolve( benderFilters );
 			} );
