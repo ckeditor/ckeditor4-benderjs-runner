@@ -91,7 +91,7 @@ cd ckeditor4
 npm i
 ```
 
-_You can also change `bender-runner.config.json` config `paths.ckeditor4` property to point to your current CKEditor 4 directory instead of cloning `ckeditor4` repository_.
+_You can change `bender-runner.config.json` config `paths.ckeditor4` property to point to your current CKEditor 4 directory or pass repository path as fifth argument in CLI instead of cloning `ckeditor4` repository_.
 
 3. Go back to main repo dir and run:
 
