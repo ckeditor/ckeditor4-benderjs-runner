@@ -3,7 +3,7 @@ const path = require( 'path' );
 const { parseGitOutput, convertFilesStatusIntoBenderFilter } = require( './diffAnalyzer' );
 const { getDependencyMap } = require( './plugins' );
 
-const differ = async function( repoRelativeDirectory, targetBranch = 'master', currentBranch = '', repoSlug ) {
+const differ = async function( repoRelativeDirectory, targetBranch = 'master', currentBranch = '', repoSlug = '' ) {
 	let bufferedGitOutput = [];
 	const cwd = path.normalize( path.join( process.cwd(), repoRelativeDirectory ) );
 
@@ -89,7 +89,7 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 	};
 	let origin = 'origin';
 
-	if( repoSlug ) {
+	if( repoSlug && repoSlug != 'ckeditor/ckeditor4' ) {
 		origin = await addOrigin( repoSlug );
 		await fetchOrigin( origin );
 	}
