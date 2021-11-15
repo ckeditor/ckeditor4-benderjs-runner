@@ -3,18 +3,65 @@ const path = require( 'path' );
 const { parseGitOutput, convertFilesStatusIntoBenderFilter } = require( './diffAnalyzer' );
 const { getDependencyMap } = require( './plugins' );
 
-const differ = function( repoRelativeDirectory, targetBranch = 'master', currentBranch = '' ) {
+const differ = async function( repoRelativeDirectory, targetBranch = 'master', currentBranch = '', repoSlug ) {
 	let bufferedGitOutput = [];
+	const cwd = path.normalize( path.join( process.cwd(), repoRelativeDirectory ) );
 
-	async function SpawnGitProcess() {
+	async function addOrigin( repoSlug ) {
 		return new Promise( ( resolve, reject ) => {
-			const cwd = path.normalize( path.join( process.cwd(), repoRelativeDirectory ) );
+			const originName = 'pullRequestOrigin';
 
+			const gitAddOrigin = spawn(
+				'git',
+				[
+					'remote',
+					'add',
+					originName,
+					'https://github.com/' + repoSlug + '.git'
+				],
+				{ cwd }
+			);
+
+			gitAddOrigin.on( 'error', ( error ) => {
+				reject( error );
+			} );
+
+			gitAddOrigin.on( 'close', ( code, signal ) => {
+				resolve( originName );
+			} );
+		} );
+	}
+
+	async function fetchOrigin( origin ) {
+		return new Promise( ( resolve, reject ) => {
+			const originName = 'pullRequestOrigin';
+
+			const fetchOrigin = spawn(
+				'git',
+				[
+					'fetch',
+					origin,
+				],
+				{ cwd }
+			);
+
+			fetchOrigin.on( 'error', ( error ) => {
+				reject( error );
+			} );
+
+			fetchOrigin.on( 'close', ( code, signal ) => {
+				resolve();
+			} );
+		} );
+	}
+
+	async function SpawnGitProcess( currentBranchOrigin ) {
+		return new Promise( ( resolve, reject ) => {
 			const gitProcess = spawn(
 				'git',
 				[
 					'diff',
-					`${ targetBranch }..${ currentBranch }`,
+					`origin/${ targetBranch }..${currentBranchOrigin}/${ currentBranch }`,
 					'--name-status'
 				],
 				{ cwd }
@@ -40,8 +87,14 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 			} );
 		} );
 	};
+	let origin = 'origin';
 
-	return SpawnGitProcess();
+	if( repoSlug ) {
+		origin = await addOrigin( repoSlug );
+		await fetchOrigin( origin );
+	}
+
+	return SpawnGitProcess( origin );
 };
 
 module.exports = {

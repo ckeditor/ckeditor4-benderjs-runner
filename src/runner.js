@@ -15,6 +15,7 @@ const repoPath = args[ 5 ];
 if ( repoPath ) {
 	config.paths.ckeditor4 = repoPath;
 }
+const prRepoSlug = args[ 6 ] || '';
 
 console.log( `Loaded config from ${ args[ 0 ] }` );
 
@@ -34,12 +35,12 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 
 	await copyRunner( config.paths );
 
-	console.log( `\n--- Generating tests query. Diffing ${ targetBranch } and ${ currentBranch }...` );
+	console.log( `\n--- Generating tests query. Diffing ${ targetBranch } and ${prRepoSlug} ${ currentBranch }...` );
 
 	let testsQuery = '';
 	if ( !fullRun ) {
 		try {
-			testsQuery = await differ( config.paths.ckeditor4, targetBranch, currentBranch );
+			testsQuery = await differ( config.paths.ckeditor4, targetBranch, currentBranch, prRepoSlug );
 		} catch ( error ) {
 			console.log( `GIT.ERROR: ${ error }` );
 			terminate( 1 );
