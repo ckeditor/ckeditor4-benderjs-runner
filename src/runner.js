@@ -9,6 +9,12 @@ const config = require( `./${ args[ 0 ] }` );
 const targetBranch = args[ 1 ];
 const currentBranch = args[ 2 ];
 const fullRun = !!( args[ 4 ] );
+const repoPath = args[ 5 ];
+
+// Repo path incoming from CLI has priority over json config
+if ( repoName ) {
+	config.paths.ckeditor4 = repoPath;
+}
 
 console.log( `Loaded config from ${ args[ 0 ] }` );
 
