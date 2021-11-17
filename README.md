@@ -91,8 +91,7 @@ cd ckeditor4
 npm i
 ```
 
-_You can change `bender-runner.config.json` config `paths.ckeditor4` property to point to your current CKEditor 4 directory or pass repository path as fifth argument in CLI instead of cloning `ckeditor4` repository_.
-
+_You can also change `bender-runner.config.json` config `paths.ckeditor4` property to point to your current CKEditor 4 directory instead of cloning `ckeditor4` repository_.
 
 3. Go back to main repo dir and run:
 
@@ -114,12 +113,6 @@ Another flag can be passed to force full test run - no matter the diff between b
 
 ```bash
 npm run start '../bender-runner.config.json' 'master' 'major' 'chrome' 'fullRun'
-```
-
-Path to the `ckeditor4` directory can be passed in the last position:
-
-```bash
-npm run start '../bender-runner.config.json' 'master' 'major' 'chrome' 'fullRun' '../ckeditor4'
 ```
 
 ## Bender filters generator
