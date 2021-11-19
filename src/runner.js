@@ -12,7 +12,7 @@ const fullRun = !!( args[ 4 ] );
 const repoPath = args[ 5 ];
 
 // Repo path incoming from CLI has priority over json config
-if ( repoName ) {
+if ( repoPath ) {
 	config.paths.ckeditor4 = repoPath;
 }
 
