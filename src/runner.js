@@ -11,12 +11,12 @@ const targetBranch = args.targetBranch;
 const currentBranch = args.currentBranch;
 const fullRun = !!( args.fullRun );
 const repoPath = args.repoPath;
+const prRepoSlug = args.prRepoSlug || '';
 
 // Repo path incoming from CLI has priority over json config
 if ( repoPath ) {
 	config.paths.ckeditor4 = repoPath;
 }
-const prRepoSlug = args.prRepoSlug || '';
 
 console.log( `Loaded config from ${ args.configFile }` );
 
