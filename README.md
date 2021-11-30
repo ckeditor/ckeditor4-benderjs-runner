@@ -100,7 +100,7 @@ _You can change `bender-runner.config.json` config `paths.ckeditor4` property to
 npm run start -- --configFile '../bender-runner.config.json' --targetBranch 'master' --currentBranch 'major'
 ```
 
-This will run specific unit tests based on [difference](#bender-filters-generator) between local `master` and `major` branches in all browser defined in config file available in your OS.
+This will run specific unit tests based on [difference](#bender-filters-generator) between local `master` and `major` branches in all browser defined in config file available in your OS. Additionally, you can pass `--prRepoSlug` argument. It will be used to add separate origin and fetch repository from that slug. Then, the diff will be made between '--targetBranch' and the '--currentBranch', but on that additional origin.
 
 Another parameter can be passed specifying single browser only on which to run tests, for example:
 
