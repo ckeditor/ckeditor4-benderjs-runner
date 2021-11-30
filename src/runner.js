@@ -2,22 +2,23 @@ const launch = require( 'launchpad' );
 const { copyFile } = require( 'fs' );
 const { normalize } = require( 'path' );
 const { spawn } = require( 'child_process' );
+const cliArgumentsParser = require('yargs-parser');
 const { differ } = require( './diff/differ' );
 
-const args = process.argv.slice( 2 );
-const config = require( `./${ args[ 0 ] }` );
-const targetBranch = args[ 1 ];
-const currentBranch = args[ 2 ];
-const fullRun = !!( args[ 4 ] );
-const repoPath = args[ 5 ];
+const args = cliArgumentsParser( process.argv.slice( 2 ));
+const config = require( `./${ args.configFile }` );
+const targetBranch = args.targetBranch;
+const currentBranch = args.currentBranch;
+const fullRun = !!( args.fullRun );
+const repoPath = args.repoPath;
 
 // Repo path incoming from CLI has priority over json config
 if ( repoPath ) {
 	config.paths.ckeditor4 = repoPath;
 }
-const prRepoSlug = args[ 6 ] || '';
+const prRepoSlug = args.prRepoSlug || '';
 
-console.log( `Loaded config from ${ args[ 0 ] }` );
+console.log( `Loaded config from ${ args.configFile }` );
 
 ( async function() {
 
@@ -79,8 +80,8 @@ console.log( `Loaded config from ${ args[ 0 ] }` );
 
 	let browsers = await getBrowsers( localInstance, os, config );
 	// Use specific browser only.
-	if ( args[ 3 ] && args[ 3 ].length ) {
-		browsers = browsers.filter( browserData => browserData.name == args[ 3 ] );
+	if ( args.browser && args.browser.length ) {
+		browsers = browsers.filter( browserData => browserData.name == args.browser );
 	}
 
 	console.log( `\n--- Testing on ${ os } with browsers:` );
