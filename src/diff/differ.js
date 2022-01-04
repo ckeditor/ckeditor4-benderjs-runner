@@ -27,6 +27,7 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 			} );
 
 			gitAddOrigin.on( 'close', ( code, signal ) => {
+				console.log( `Add origin exited with code ${code}` );
 				resolve( originName );
 			} );
 		} );
@@ -50,6 +51,7 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 			} );
 
 			fetchOrigin.on( 'close', ( code, signal ) => {
+				console.log( `Fetch additional origin exited with code ${code} `);
 				resolve();
 			} );
 		} );
@@ -76,7 +78,7 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 			} );
 
 			gitProcess.on( 'close', ( code, signal ) => {
-				console.log( `child process exited with code ${code}` );
+				console.log( `Git diff process exited with code ${code}` );
 				const data = bufferedGitOutput.join( '' );
 
 				const filesStatus = parseGitOutput( data );
