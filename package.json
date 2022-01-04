@@ -15,7 +15,7 @@
 		"fastify": "^3.4.1",
 		"launchpad": "^0.7.5",
 		"pino": "^6.11.3",
-		"yargs-parser": "^21.0.0"
+		"yargs-parser": "20.2.9"
 	},
 	"devDependencies": {
 		"mocha": "^8.2.1"
