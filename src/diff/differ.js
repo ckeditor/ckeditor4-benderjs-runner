@@ -22,6 +22,10 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 				{ cwd }
 			);
 
+			gitAddOrigin.stderr.on( 'data', data => {
+				console.log( data.toString() );
+			} );
+
 			gitAddOrigin.on( 'error', ( error ) => {
 				reject( error );
 			} );
@@ -45,6 +49,10 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 				],
 				{ cwd }
 			);
+
+			fetchOrigin.stderr.on( 'data', data => {
+				console.log( data.toString() );
+			} );
 
 			fetchOrigin.on( 'error', ( error ) => {
 				reject( error );
@@ -71,6 +79,10 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 
 			gitProcess.stdout.on( 'data', data => {
 				bufferedGitOutput.push( data.toString() );
+			} );
+
+			gitProcess.stderr.on( 'data', data => {
+				console.log( data.toString() );
 			} );
 
 			gitProcess.on( 'error', ( error ) => {
