@@ -76,6 +76,7 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 			} );
 
 			gitProcess.on( 'close', ( code, signal ) => {
+				console.log( `child process exited with code ${code}` );
 				const data = bufferedGitOutput.join( '' );
 
 				const filesStatus = parseGitOutput( data );
