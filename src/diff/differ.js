@@ -30,7 +30,7 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 				reject( error );
 			} );
 
-			gitAddOrigin.on( 'close', ( code, signal ) => {
+			gitAddOrigin.on( 'close', ( code ) => {
 				console.log( `Add origin exited with code ${code}` );
 				resolve( originName );
 			} );
@@ -39,8 +39,6 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 
 	async function fetchOrigin( origin ) {
 		return new Promise( ( resolve, reject ) => {
-			const originName = 'pullRequestOrigin';
-
 			const fetchOrigin = spawn(
 				'git',
 				[
@@ -58,7 +56,7 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 				reject( error );
 			} );
 
-			fetchOrigin.on( 'close', ( code, signal ) => {
+			fetchOrigin.on( 'close', ( code ) => {
 				console.log( `Fetch additional origin exited with code ${code} `);
 				resolve();
 			} );
@@ -89,7 +87,7 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 				reject( error );
 			} );
 
-			gitProcess.on( 'close', ( code, signal ) => {
+			gitProcess.on( 'close', ( code ) => {
 				console.log( `Git diff process exited with code ${code}` );
 				const data = bufferedGitOutput.join( '' );
 
