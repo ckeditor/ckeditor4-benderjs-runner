@@ -64,7 +64,7 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 		} );
 	}
 
-	async function SpawnGitProcess( currentBranchOrigin ) {
+	async function spawnGitDiffProcess( currentBranchOrigin ) {
 		return new Promise( ( resolve, reject ) => {
 			const gitProcess = spawn(
 				'git',
@@ -108,7 +108,7 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 		await fetchOrigin( origin, currentBranch );
 	}
 
-	return SpawnGitProcess( origin );
+	return spawnGitDiffProcess( origin );
 };
 
 module.exports = {
