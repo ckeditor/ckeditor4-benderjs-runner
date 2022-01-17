@@ -37,13 +37,14 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 		} );
 	}
 
-	async function fetchOrigin( origin ) {
+	async function fetchOrigin( origin, branch ) {
 		return new Promise( ( resolve, reject ) => {
 			const fetchOrigin = spawn(
 				'git',
 				[
 					'fetch',
 					origin,
+					branch
 				],
 				{ cwd }
 			);
@@ -104,7 +105,7 @@ const differ = async function( repoRelativeDirectory, targetBranch = 'master', c
 
 	if( repoSlug && repoSlug != 'ckeditor/ckeditor4' ) {
 		origin = await addOrigin( repoSlug );
-		await fetchOrigin( origin );
+		await fetchOrigin( origin, currentBranch );
 	}
 
 	return SpawnGitProcess( origin );
