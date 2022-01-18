@@ -1,7 +1,6 @@
 {
-	"name": "benderembed",
-	"version": "1.0.0",
-	"description": "",
+	"name": "ckeditor4-bender-runner",
+	"version": "0.0.1",
 	"main": "index.js",
 	"scripts": {
 		"start": "node src/runner.js",
@@ -10,7 +9,7 @@
 		"test": "mocha"
 	},
 	"author": "",
-	"license": "ISC",
+	"license": "(GPL-2.0-or-later OR LGPL-2.1-or-later OR MPL-1.1-or-later)",
 	"dependencies": {
 		"fastify": "^3.4.1",
 		"launchpad": "^0.7.5",
