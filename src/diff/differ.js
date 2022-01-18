@@ -3,18 +3,74 @@ const path = require( 'path' );
 const { parseGitOutput, convertFilesStatusIntoBenderFilter } = require( './diffAnalyzer' );
 const { getDependencyMap } = require( './plugins' );
 
-const differ = function( repoRelativeDirectory, targetBranch = 'master', currentBranch = '' ) {
+const differ = async function( repoRelativeDirectory, targetBranch = 'master', currentBranch = '', repoSlug = '' ) {
 	let bufferedGitOutput = [];
+	const cwd = path.normalize( path.join( process.cwd(), repoRelativeDirectory ) );
 
-	async function SpawnGitProcess() {
+	async function addOrigin( repoSlug ) {
 		return new Promise( ( resolve, reject ) => {
-			const cwd = path.normalize( path.join( process.cwd(), repoRelativeDirectory ) );
+			const originName = 'pullRequestOrigin';
 
+			const gitAddOrigin = spawn(
+				'git',
+				[
+					'remote',
+					'add',
+					originName,
+					'https://github.com/' + repoSlug + '.git'
+				],
+				{ cwd }
+			);
+
+			gitAddOrigin.stderr.on( 'data', data => {
+				console.log( data.toString() );
+			} );
+
+			gitAddOrigin.on( 'error', ( error ) => {
+				reject( error );
+			} );
+
+			gitAddOrigin.on( 'close', ( code ) => {
+				console.log( `Add origin exited with code ${code}` );
+				resolve( originName );
+			} );
+		} );
+	}
+
+	async function fetchOrigin( origin, branch ) {
+		return new Promise( ( resolve, reject ) => {
+			const fetchOrigin = spawn(
+				'git',
+				[
+					'fetch',
+					origin,
+					branch
+				],
+				{ cwd }
+			);
+
+			fetchOrigin.stderr.on( 'data', data => {
+				console.log( data.toString() );
+			} );
+
+			fetchOrigin.on( 'error', ( error ) => {
+				reject( error );
+			} );
+
+			fetchOrigin.on( 'close', ( code ) => {
+				console.log( `Fetch additional origin exited with code ${code} `);
+				resolve();
+			} );
+		} );
+	}
+
+	async function spawnGitDiffProcess( currentBranchOrigin ) {
+		return new Promise( ( resolve, reject ) => {
 			const gitProcess = spawn(
 				'git',
 				[
 					'diff',
-					`${ targetBranch }..${ currentBranch }`,
+					`origin/${ targetBranch }..${currentBranchOrigin}/${ currentBranch }`,
 					'--name-status'
 				],
 				{ cwd }
@@ -24,11 +80,16 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 				bufferedGitOutput.push( data.toString() );
 			} );
 
+			gitProcess.stderr.on( 'data', data => {
+				console.log( data.toString() );
+			} );
+
 			gitProcess.on( 'error', ( error ) => {
 				reject( error );
 			} );
 
-			gitProcess.on( 'close', ( code, signal ) => {
+			gitProcess.on( 'close', ( code ) => {
+				console.log( `Git diff process exited with code ${code}` );
 				const data = bufferedGitOutput.join( '' );
 
 				const filesStatus = parseGitOutput( data );
@@ -40,8 +101,14 @@ const differ = function( repoRelativeDirectory, targetBranch = 'master', current
 			} );
 		} );
 	};
+	let origin = 'origin';
 
-	return SpawnGitProcess();
+	if( repoSlug && repoSlug != 'ckeditor/ckeditor4' ) {
+		origin = await addOrigin( repoSlug );
+		await fetchOrigin( origin, currentBranch );
+	}
+
+	return spawnGitDiffProcess( origin );
 };
 
 module.exports = {

@@ -91,21 +91,21 @@ cd ckeditor4
 npm i
 ```
 
-_You can change `bender-runner.config.json` config `paths.ckeditor4` property to point to your current CKEditor 4 directory or pass repository path as fifth argument in CLI instead of cloning `ckeditor4` repository_.
+_You can change `bender-runner.config.json` config `paths.ckeditor4` property to point to your current CKEditor 4 directory or pass repository path as a `--repoPath` argument in CLI instead of cloning `ckeditor4` repository_.
 
 
 3. Go back to main repo dir and run:
 
 ```bash
-npm run start '../bender-runner.config.json' 'master' 'major'
+npm run start -- --configFile '../bender-runner.config.json' --targetBranch 'master' --currentBranch 'major'
 ```
 
-This will run specific unit tests based on [difference](#bender-filters-generator) between local `master` and `major` branches in all browser defined in config file available in your OS.
+This will run specific unit tests based on [difference](#bender-filters-generator) between local `master` and `major` branches in all browser defined in config file available in your OS. Additionally, you can pass `--prRepoSlug` argument. It will be used to add separate origin and fetch repository from that slug. Then, the diff will be made between '--targetBranch' and the '--currentBranch', but on that additional origin.
 
 Another parameter can be passed specifying single browser only on which to run tests, for example:
 
 ```bash
-npm run start '../bender-runner.config.json' 'master' 'major' 'chrome'
+npm run start -- --configFile '../bender-runner.config.json' --targetBranch 'master' --currentBranch 'major' --browser 'chrome'
 ```
 
 With such call, even though more browsers may be available on host OS and config may have multiple names listed, tests will be run only on this single browser.
@@ -113,13 +113,13 @@ With such call, even though more browsers may be available on host OS and config
 Another flag can be passed to force full test run - no matter the diff between branches all unit test will run:
 
 ```bash
-npm run start '../bender-runner.config.json' 'master' 'major' 'chrome' 'fullRun'
+npm run start -- --configFile '../bender-runner.config.json' --targetBranch 'master' --currentBranch 'major' --browser 'chrome' --fullRun 'fullRun'
 ```
 
 Path to the `ckeditor4` directory can be passed in the last position:
 
 ```bash
-npm run start '../bender-runner.config.json' 'master' 'major' 'chrome' 'fullRun' '../ckeditor4'
+npm run start -- --configFile '../bender-runner.config.json' --targetBranch 'master' --currentBranch 'major' --browser 'chrome' --fullRun 'fullRun' --repoPath '../ckeditor4'
 ```
 
 ## Bender filters generator

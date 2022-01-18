@@ -1,22 +1,22 @@
 {
-  "name": "benderembed",
-  "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "node src/runner.js",
-    "sub:bender": "node src/bender.js",
-    "sub:server": "node src/server.js",
-    "test": "mocha"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "fastify": "^3.4.1",
-    "launchpad": "^0.7.5",
-    "pino": "^6.11.3"
-  },
-  "devDependencies": {
-    "mocha": "^8.2.1"
-  }
+	"name": "ckeditor4-bender-runner",
+	"version": "0.0.1",
+	"main": "index.js",
+	"scripts": {
+		"start": "node src/runner.js",
+		"sub:bender": "node src/bender.js",
+		"sub:server": "node src/server.js",
+		"test": "mocha"
+	},
+	"author": "",
+	"license": "(GPL-2.0-or-later OR LGPL-2.1-or-later OR MPL-1.1-or-later)",
+	"dependencies": {
+		"fastify": "^3.4.1",
+		"launchpad": "^0.7.5",
+		"pino": "^6.11.3",
+		"yargs-parser": "20.2.9"
+	},
+	"devDependencies": {
+		"mocha": "^8.2.1"
+	}
 }
