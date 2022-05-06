@@ -14,10 +14,10 @@
 	"dependencies": {
 		"fastify": "^3.4.1",
 		"launchpad": "^0.7.5",
-		"pino": "^6.11.3",
-		"yargs-parser": "20.2.9"
+		"pino": "^7.11.0",
+		"yargs-parser": "^21.0.1"
 	},
 	"devDependencies": {
-		"mocha": "^8.2.1"
+		"mocha": "^10.0.0"
 	}
 }
