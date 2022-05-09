@@ -1,3 +1,4 @@
 ckeditor4
 node_modules
 .fastify.log
+package-lock.json
