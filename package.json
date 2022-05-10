@@ -1,22 +1,23 @@
 {
 	"name": "ckeditor4-bender-runner",
+	"description": "",
 	"version": "1.0.0",
 	"main": "index.js",
+	"author": "",
+	"license": "(GPL-2.0-or-later OR LGPL-2.1-or-later OR MPL-1.1-or-later)",
 	"scripts": {
 		"start": "node src/runner.js",
 		"sub:bender": "node src/bender.js",
 		"sub:server": "node src/server.js",
 		"test": "mocha"
 	},
-	"author": "",
-	"license": "(GPL-2.0-or-later OR LGPL-2.1-or-later OR MPL-1.1-or-later)",
 	"dependencies": {
 		"fastify": "^3.4.1",
 		"launchpad": "^0.7.5",
-		"pino": "^6.11.3",
-		"yargs-parser": "20.2.9"
+		"pino": "^7.11.0",
+		"yargs-parser": "^21.0.1"
 	},
 	"devDependencies": {
-		"mocha": "^8.2.1"
+		"mocha": "^10.0.0"
 	}
 }
