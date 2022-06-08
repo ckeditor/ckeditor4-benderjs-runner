@@ -12,8 +12,8 @@
 		"test": "mocha"
 	},
 	"dependencies": {
-		"fastify": "^3.4.1",
-		"launchpad": "^0.7.5",
+		"fastify": "^3.29.0",
+		"launchpad": "^0.8.0",
 		"pino": "^6.13.0",
 		"yargs-parser": "^20.2.9"
 	},
