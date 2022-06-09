@@ -1,7 +1,7 @@
 {
 	"name": "ckeditor4-bender-runner",
 	"description": "",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"main": "index.js",
 	"author": "",
 	"license": "(GPL-2.0-or-later OR LGPL-2.1-or-later OR MPL-1.1-or-later)",
